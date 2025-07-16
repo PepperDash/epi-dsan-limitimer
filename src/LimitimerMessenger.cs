@@ -27,7 +27,7 @@ namespace PepperDash.Essentials.Plugin
 
         private void SendFullStatus(string id, JToken content) 
         {
-            PostStatusMessage(new LimiTimerStateMessage
+            PostStatusMessage(new LimitimerStateMessage
             {
                 //Define Getter Property methods
                 /*Program1LedState = GetProgram1LedState()
@@ -47,7 +47,7 @@ namespace PepperDash.Essentials.Plugin
         }
     }
 
-    public class LimiTimerStateMessage : DeviceStateMessageBase
+    public class LimitimerStateMessage : DeviceStateMessageBase
     {
         [JsonProperty("program1LedState")]
         public LimitimerLedState Program1LedState { get; set; }
