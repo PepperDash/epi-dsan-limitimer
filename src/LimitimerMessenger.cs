@@ -25,7 +25,7 @@ namespace PepperDash.Essentials.Plugin
             AddAction("/fullStatus", SendFullStatus);
         }
 
-        private void SendFullStatus(string id, JToken content) 
+        private void SendFullStatus(string id, JToken content) //called once by front-end at start up, individual statuses will be sent as unsolicited feedback
         {
             PostStatusMessage(new LimitimerStateMessage
             {
