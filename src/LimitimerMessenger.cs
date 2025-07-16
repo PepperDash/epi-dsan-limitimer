@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PepperDash.Essentials.AppServer.Messengers;
 using PepperDash.Essentials.Core;
 
@@ -17,9 +18,36 @@ namespace PepperDash.Essentials.Plugin
         {
 
         }
+
+        protected override void RegisterActions()
+        {
+            base.RegisterActions();
+            AddAction("/fullStatus", SendFullStatus);
+        }
+
+        private void SendFullStatus(string id, JToken content) 
+        {
+            PostStatusMessage(new LimiTimerStateMessage
+            {
+                //Define Getter Property methods
+                /*Program1LedState = GetProgram1LedState()
+                Program2LedState = GetProgram2LedState(),
+                Program3LedState = GetProgram3LedState(),
+                BeepLedState = GetBeepLedState(),
+                BlinkLedState = GetBlinkLedState(),
+                GreenLedState = GetGreenLedState(),
+                RedLedState = GetRedLedState(),
+                YellowLedState = GetYellowLedState(),
+                SecondsModeIndicatorState = GetSecondsModeIndicatorState(),
+                Beep = GetBeepState(),
+                TotalTime = GetTotalTime(),
+                SumUpTime = GetSumUpTime(),
+                RemainingTime = GetRemainingTime()*/
+            });
+        }
     }
 
-    public class LimiTimerState : DeviceStateMessageBase
+    public class LimiTimerStateMessage : DeviceStateMessageBase
     {
         [JsonProperty("program1LedState")]
         public LimitimerLedState Program1LedState { get; set; }
