@@ -41,9 +41,6 @@
  	<PackageReference Include="PepperDash.Essentials.MobileControl" Version="2.12.1" >
   		<ExcludeAssets>runtime</ExcludeAssets>
  	</PackageReference>
- 	<PackageReference Include="PepperDash.Essentials.MobileControl.Messengers" Version="2.12.1" >
-  		<ExcludeAssets>runtime</ExcludeAssets>
- 	</PackageReference>
   </ItemGroup>
 
   <ItemGroup>
