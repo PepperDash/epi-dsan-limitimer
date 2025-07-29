@@ -44,10 +44,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         /// </summary>
 		private const string CommsDelimiter = "\r";
 
-		// _comms byte buffer for HEX/byte based API's
-		// TODO [ ] If not using an HEX/byte based API, delete the properties below
-		private byte[] _commsByteBuffer = { };
-
+		/// <summary>
+		/// The properties configuration object for the plugin device
+		/// </summary>
 		private readonly LimitimerPropertiesConfig _config;
 
 
@@ -114,9 +113,11 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			OnlineFeedback = new BoolFeedback(key, () => _commsMonitor.IsOnline);
 			StatusFeedback = new IntFeedback(key, () => (int)_commsMonitor.Status);
 
+			// TODO [ ] no polling for this device - anything needed to change here?
 			_comms = comms;
 			_commsMonitor = new GenericCommunicationMonitor(this, _comms, _config.PollTimeMs, _config.WarningTimeoutMs, _config.ErrorTimeoutMs, Poll);
 
+			// TODO [ ] comms will always be rs-232 - anything to do here?
 			var socket = _comms as ISocketStatus;
 			if (socket != null)
 			{
@@ -127,20 +128,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
             #region Communication data event handlers.  Comment out any that don't apply to the API type
 
-            // Only one of the below handlers should be necessary.  
-
             // _comms gather for any API that has a defined delimiter
-			// TODO [ ] If not using an ASCII based API, remove the line below
 			_commsGather = new CommunicationGather(_comms, CommsDelimiter);
 			_commsGather.LineReceived += Handle_LineRecieved;
-
-			// _comms byte buffer for HEX/byte based API's with no delimiter
-            // TODO [ ] If not using an HEX/byte based API, remove the line below
-			_comms.BytesReceived += Handle_BytesReceived;
-
-            // _comms byte buffer for HEX/byte based API's with no delimiter
-            // TODO [ ] If not using an HEX/byte based API, remove the line below
-            _comms.TextReceived += Handle_TextReceived;
 
             #endregion
         }
@@ -164,13 +154,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             ReceiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
-        // TODO [ ] If not using an HEX/byte based API with no delimeter,  delete the method below
-		private void Handle_BytesReceived(object sender, GenericCommMethodReceiveBytesArgs args)
-		{
-			// TODO [ ] Implement method 
-			throw new System.NotImplementedException();
-		}
-
         // TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
         void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
         {
@@ -178,13 +161,15 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             throw new System.NotImplementedException();
         }
 
-        /// <summary>
-        /// This method should perform any necessary parsing of feedback messages from the device
-        /// </summary>
-        /// <param name="message"></param>
-        void ProcessFeedbackMessage(string message)
-        {
-
+		/// <summary>
+		/// This method should perform any necessary parsing of feedback messages from the device
+		/// </summary>
+		/// <param name="message"></param>
+		void ProcessFeedbackMessage(string message)
+		{
+			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: {0}", message);
+			
+			
         }
 
 
@@ -202,34 +187,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 			_comms.SendText(string.Format("{0}{1}", text, CommsDelimiter));
 		}
-
-		// TODO [ ] If not using an HEX/byte based API, delete the properties below
-		/// <summary>
-		/// Sends bytes to the device plugin comms
-		/// </summary>
-		/// <remarks>
-		/// Can be used to test commands with the device plugin using the DEVPROPS and DEVJSON console commands
-		/// </remarks>
-		/// <param name="bytes">Bytes to be sent</param>		
-		public void SendBytes(byte[] bytes)
-		{
-			if (bytes == null) return;
-
-			_comms.SendBytes(bytes);
-		}
-
-		/// <summary>
-		/// Polls the device
-		/// </summary>
-		/// <remarks>
-		/// Poll method is used by the communication monitor.  Update the poll method as needed for the plugin being developed
-		/// </remarks>
-		public void Poll()
-		{
-			// TODO [ ] Update Poll method as needed for the plugin being developed
-            // Example: SendText("getstatus");
-			throw new System.NotImplementedException();
-        }
 
         #endregion
 
