@@ -48,6 +48,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		// TODO [ ] If not using an HEX/byte based API, delete the properties below
 		private byte[] _commsByteBuffer = { };
 
+		private readonly LimitimerPropertiesConfig _config;
 
 
 		/// <summary>
@@ -101,7 +102,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         public LimitimerDevice(string key, string name, LimitimerPropertiesConfig config, IBasicCommunication comms)
 			: base(key, name)
 		{
-			Debug.Console(0, this, "Constructing new {0} instance", name);
+			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Constructing new {0} instance", name);
 
 			// TODO [ ] Update the constructor as needed for the plugin device being developed
 
@@ -109,9 +110,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
             ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
 
-			ConnectFeedback = new BoolFeedback(() => Connect);
-			OnlineFeedback = new BoolFeedback(() => _commsMonitor.IsOnline);
-			StatusFeedback = new IntFeedback(() => (int)_commsMonitor.Status);
+			ConnectFeedback = new BoolFeedback(key, () => Connect);
+			OnlineFeedback = new BoolFeedback(key, () => _commsMonitor.IsOnline);
+			StatusFeedback = new IntFeedback(key, () => (int)_commsMonitor.Status);
 
 			_comms = comms;
 			_commsMonitor = new GenericCommunicationMonitor(this, _comms, _config.PollTimeMs, _config.WarningTimeoutMs, _config.ErrorTimeoutMs, Poll);
