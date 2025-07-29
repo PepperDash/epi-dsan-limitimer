@@ -1,13 +1,11 @@
-﻿// For Basic SIMPL# Classes
-// For Basic SIMPL#Pro classes
-
+﻿using Crestron.SimplSharpPro;
 using Crestron.SimplSharpPro.DeviceSupport;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 using PepperDash.Essentials.Core.Queues;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.Limitimer
 {
 	/// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication
@@ -18,17 +16,18 @@ namespace PepperDash.Essentials.Plugin
 	/// <example>
 	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
 	/// </example>
-	public class EssentialsPluginTemplateDevice : EssentialsBridgeableDevice
+	public class LimitimerDevice : EssentialsDevice, IOnline
     {
-        /// <summary>
-        /// It is often desirable to store the config
-        /// </summary>
-        private EssentialsPluginTemplateConfigObject _config;
+		/// <summary>
+		/// It is often desirable to store the config
+		/// </summary>
 
-        /// <summary>
-        /// Provides a queue and dedicated worker thread for processing feedback messages from a device.
-        /// </summary>
-        private GenericQueue ReceiveQueue;
+		// private EssentialsPluginTemplateConfigObject _config;
+
+		/// <summary>
+		/// Provides a queue and dedicated worker thread for processing feedback messages from a device.
+		/// </summary>
+		private GenericQueue ReceiveQueue;
 
         #region IBasicCommunication Properties and Constructor.  Remove if not needed.
 
@@ -90,14 +89,16 @@ namespace PepperDash.Essentials.Plugin
 		/// </summary>
 		public IntFeedback StatusFeedback { get; private set; }
 
-		/// <summary>
-		/// Plugin device constructor for devices that need IBasicCommunication
-		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="name"></param>
-		/// <param name="config"></param>
-		/// <param name="comms"></param>
-        public EssentialsPluginTemplateDevice(string key, string name, EssentialsPluginTemplateConfigObject config, IBasicCommunication comms)
+        public BoolFeedback IsOnline => throw new System.NotImplementedException();
+
+        /// <summary>
+        /// Plugin device constructor for devices that need IBasicCommunication
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="name"></param>
+        /// <param name="config"></param>
+        /// <param name="comms"></param>
+        public LimitimerDevice(string key, string name, LimitimerPropertiesConfig config, IBasicCommunication comms)
 			: base(key, name)
 		{
 			Debug.Console(0, this, "Constructing new {0} instance", name);
@@ -241,7 +242,7 @@ namespace PepperDash.Essentials.Plugin
         /// <param name="joinStart"></param>
         /// <param name="joinMapKey"></param>
         /// <param name="bridge"></param>
-        public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+        /*public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
             var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
@@ -281,7 +282,7 @@ namespace PepperDash.Essentials.Plugin
                 trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
                 UpdateFeedbacks();
             };
-        }
+        } */
 
         private void UpdateFeedbacks()
         {

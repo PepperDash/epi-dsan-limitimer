@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 using PepperDash.Essentials.AppServer.Messengers;
 using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.Limitimer
 {
     public class LimitimerMessenger : MessengerBase
     {

@@ -4,7 +4,7 @@ using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Config;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.Limitimer
 {
 	
     public class LimitimerFactory : EssentialsPluginDeviceFactory<LimitimerDevice>
@@ -30,7 +30,7 @@ namespace PepperDash.Essentials.Plugin
             }
 
             // get the plugin device properties configuration object & check for null 
-            var config = dc.Properties.ToObject<EssentialsPluginTemplateConfigObject>();
+            var config = dc.Properties.ToObject<LimitimerPropertiesConfig>();
             if (config == null)
             {
                 Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);
