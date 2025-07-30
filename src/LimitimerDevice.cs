@@ -1,16 +1,15 @@
 ﻿using System;
+using System.Linq;
 using PepperDash.Core;
+using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
+using PepperDash.Essentials.Core.DeviceTypeInterfaces;
 using PepperDash.Essentials.Core.Queues;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
 	public class LimitimerDevice : EssentialsDevice, IOnline
     {
-		/// <summary>
-		/// It is often desirable to store the config
-		/// </summary>
-
 		// private EssentialsPluginTemplateConfigObject _config;
 
 		private GenericQueue ReceiveQueue;
@@ -66,22 +65,34 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			}
 		}
 
-		/// <summary>
-		/// Reports connect feedback through the bridge
-		/// </summary>
 		public BoolFeedback ConnectFeedback { get; private set; }
 
-		/// <summary>
-		/// Reports online feedback through the bridge
-		/// </summary>
 		public BoolFeedback OnlineFeedback { get; private set; }
 
-		/// <summary>
-		/// Reports socket status feedback through the bridge
-		/// </summary>
 		public IntFeedback StatusFeedback { get; private set; }
 
         public BoolFeedback IsOnline => OnlineFeedback;
+
+		#region State Feedback Objects
+
+		/// LED state feedbacks
+		public IntFeedback Program1LedStateFeedback { get; private set; }
+		public IntFeedback Program2LedStateFeedback { get; private set; }
+		public IntFeedback Program3LedStateFeedback { get; private set; }
+		public IntFeedback SessionLedStateFeedback { get; private set; }
+		public BoolFeedback BeepLedStateFeedback { get; private set; }
+		public BoolFeedback BlinkLedStateFeedback { get; private set; }
+		public BoolFeedback GreenLedStateFeedback { get; private set; }
+		public BoolFeedback RedLedStateFeedback { get; private set; }
+		public BoolFeedback YellowLedStateFeedback { get; private set; }
+		public BoolFeedback SecondsModeIndicatorStateFeedback { get; private set; }
+
+		/// Time string feedbacks
+		public StringFeedback TotalTimeFeedback { get; private set; }
+		public StringFeedback SumUpTimeFeedback { get; private set; }
+		public StringFeedback RemainingTimeFeedback { get; private set; }
+
+		#endregion
 
 		#region Public State Properties
 
@@ -104,7 +115,24 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		#endregion
 
-        public LimitimerDevice(string key, string name, LimitimerPropertiesConfig config, IBasicCommunication comms)
+		protected override void CreateMobileControlMessengers()
+		{
+			var mc = DeviceManager.AllDevices.OfType<IMobileControl>().FirstOrDefault();
+
+			if (mc == null)
+			{
+				Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "Mobile Control not found", this);
+				return;
+			}
+
+			var limtimerMessenger = new LimitimerMessenger($"{Key}", $"/device/{Key}", this);
+
+			mc.AddDeviceMessenger(limtimerMessenger);
+
+		} 
+
+
+		public LimitimerDevice(string key, string name, LimitimerPropertiesConfig config, IBasicCommunication comms)
 			: base(key, name)
 		{
 			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Constructing new {0} instance", name);
@@ -128,7 +156,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			_sumUpTime = "00:00";
 			_remainingTime = "00:00";
 
-            ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
+			ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
 
 			// TODO [ ] no polling for this device - anything needed to change here?
 			_comms = comms;
@@ -138,6 +166,24 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			OnlineFeedback = new BoolFeedback(key, () => _commsMonitor.IsOnline);
 			StatusFeedback = new IntFeedback(key, () => (int)_commsMonitor.Status);
 
+			// Initialize state feedback objects - following NVX pattern
+			Program1LedStateFeedback = new IntFeedback($"{key}-program1LedState", () => (int)_program1LedState);
+			Program2LedStateFeedback = new IntFeedback($"{key}-program2LedState", () => (int)_program2LedState);
+			Program3LedStateFeedback = new IntFeedback($"{key}-program3LedState", () => (int)_program3LedState);
+			SessionLedStateFeedback = new IntFeedback($"{key}-sessionLedState", () => (int)_sessionLedState);
+			BeepLedStateFeedback = new BoolFeedback($"{key}-beepLedState", () => _beepLedState);
+			BlinkLedStateFeedback = new BoolFeedback($"{key}-blinkLedState", () => _blinkLedState);
+			GreenLedStateFeedback = new BoolFeedback($"{key}-greenLedState", () => _greenLedState);
+			RedLedStateFeedback = new BoolFeedback($"{key}-redLedState", () => _redLedState);
+			YellowLedStateFeedback = new BoolFeedback($"{key}-yellowLedState", () => _yellowLedState);
+			SecondsModeIndicatorStateFeedback = new BoolFeedback($"{key}-secondsModeIndicatorState", () => _secondsModeIndicatorState);
+			TotalTimeFeedback = new StringFeedback($"{key}-totalTime", () => _totalTime);
+			SumUpTimeFeedback = new StringFeedback($"{key}-sumUpTime", () => _sumUpTime);
+			RemainingTimeFeedback = new StringFeedback($"{key}-remainingTime", () => _remainingTime);
+
+			// TODO: Add feedbacks to collection if available in base class
+			// Feedbacks?.Add(Program1LedStateFeedback); etc.
+
 
 			// TODO [ ] comms will always be rs-232 - anything to do here?
 			var socket = _comms as ISocketStatus;
@@ -146,16 +192,16 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 				// device comms is IP **ELSE** device comms is RS232
 				socket.ConnectionChange += socket_ConnectionChange;
 				Connect = true;
-            }
+			}
 
-            #region Communication data event handlers.  Comment out any that don't apply to the API type
+			#region Communication data event handlers.  Comment out any that don't apply to the API type
 
-            // _comms gather for any API that has a defined delimiter
+			// _comms gather for any API that has a defined delimiter
 			_commsGather = new CommunicationGather(_comms, CommsDelimiter);
 			_commsGather.LineReceived += Handle_LineRecieved;
 
-            #endregion
-        }
+			#endregion
+		}
 
 
 		private void socket_ConnectionChange(object sender, GenericSocketStatusChageEventArgs args)
@@ -332,13 +378,29 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		private void OnStateChanged()
 		{
+			// Fire individual feedback updates - this enables targeted messaging in the messenger
+			Program1LedStateFeedback?.FireUpdate();
+			Program2LedStateFeedback?.FireUpdate();
+			Program3LedStateFeedback?.FireUpdate();
+			SessionLedStateFeedback?.FireUpdate();
+			BeepLedStateFeedback?.FireUpdate();
+			BlinkLedStateFeedback?.FireUpdate();
+			GreenLedStateFeedback?.FireUpdate();
+			RedLedStateFeedback?.FireUpdate();
+			YellowLedStateFeedback?.FireUpdate();
+			SecondsModeIndicatorStateFeedback?.FireUpdate();
+			TotalTimeFeedback?.FireUpdate();
+			SumUpTimeFeedback?.FireUpdate();
+			RemainingTimeFeedback?.FireUpdate();
+
+			// Keep the general StateChanged event for backward compatibility
 			StateChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnBeepEvent()
 		{
 			// TODO: Implement BeepEvent functionality
-			throw new NotImplementedException("BeepEvent handling not yet implemented");
+			this.LogInformation("Beep event triggered"); ;
 		}
 
 
@@ -440,7 +502,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 
         #region Overrides of EssentialsBridgeableDevice
-
+/*
         /// <summary>
         /// Links the plugin device to the EISC bridge
         /// </summary>
@@ -448,7 +510,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         /// <param name="joinStart"></param>
         /// <param name="joinMapKey"></param>
         /// <param name="bridge"></param>
-        /*public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+        public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
             var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
@@ -488,7 +550,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
                 UpdateFeedbacks();
             };
-        } */
+        } 
 
         private void UpdateFeedbacks()
         {
@@ -497,7 +559,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             OnlineFeedback.FireUpdate();
             StatusFeedback.FireUpdate();
         }
-
+ */
         #endregion
 
     }

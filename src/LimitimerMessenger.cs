@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PepperDash.Essentials.AppServer.Messengers;
+using PepperDash.Core;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
@@ -13,13 +14,66 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             : base(key, path)
         {
             _limitimerDevice = device;
-            _limitimerDevice.StateChanged += OnDeviceStateChanged;
+
+            SubscribeToDeviceFeedbacks();
+            
             _limitimerDevice.BeepEvent += OnDeviceBeepEvent;
         }
 
-        private void OnDeviceStateChanged(object sender, EventArgs e)
+        private void SubscribeToDeviceFeedbacks()
         {
-            SendFullStatusUpdate();
+            // LED state feedbacks
+            _limitimerDevice.Program1LedStateFeedback.OutputChange += (o, a) => 
+                SendLedUpdate("program1LedState", _limitimerDevice.Program1LedState);
+            _limitimerDevice.Program2LedStateFeedback.OutputChange += (o, a) => 
+                SendLedUpdate("program2LedState", _limitimerDevice.Program2LedState);
+            _limitimerDevice.Program3LedStateFeedback.OutputChange += (o, a) => 
+                SendLedUpdate("program3LedState", _limitimerDevice.Program3LedState);
+            _limitimerDevice.SessionLedStateFeedback.OutputChange += (o, a) => 
+                SendLedUpdate("sessionLedState", _limitimerDevice.SessionLedState);
+            
+            // Boolean LED states
+            _limitimerDevice.BeepLedStateFeedback.OutputChange += (o, a) => 
+                SendBoolUpdate("beepLedState", _limitimerDevice.BeepLedState);
+            _limitimerDevice.BlinkLedStateFeedback.OutputChange += (o, a) => 
+                SendBoolUpdate("blinkLedState", _limitimerDevice.BlinkLedState);
+            _limitimerDevice.GreenLedStateFeedback.OutputChange += (o, a) => 
+                SendBoolUpdate("greenLedState", _limitimerDevice.GreenLedState);
+            _limitimerDevice.RedLedStateFeedback.OutputChange += (o, a) => 
+                SendBoolUpdate("redLedState", _limitimerDevice.RedLedState);
+            _limitimerDevice.YellowLedStateFeedback.OutputChange += (o, a) => 
+                SendBoolUpdate("yellowLedState", _limitimerDevice.YellowLedState);
+            _limitimerDevice.SecondsModeIndicatorStateFeedback.OutputChange += (o, a) => 
+                SendBoolUpdate("secondsModeIndicatorState", _limitimerDevice.SecondsModeIndicatorState);
+            
+            // Time string feedbacks
+            _limitimerDevice.TotalTimeFeedback.OutputChange += (o, a) => 
+                SendTimeUpdate("totalTime", _limitimerDevice.TotalTime);
+            _limitimerDevice.SumUpTimeFeedback.OutputChange += (o, a) => 
+                SendTimeUpdate("sumUpTime", _limitimerDevice.SumUpTime);
+            _limitimerDevice.RemainingTimeFeedback.OutputChange += (o, a) => 
+                SendTimeUpdate("remainingTime", _limitimerDevice.RemainingTime);
+        }
+
+        private void SendLedUpdate(string propertyName, LimitimerLedState state)
+        {
+            var updateObject = new JObject();
+            updateObject[propertyName] = JToken.FromObject(state);
+            PostStatusMessage(updateObject);
+        }
+
+        private void SendBoolUpdate(string propertyName, bool value)
+        {
+            var updateObject = new JObject();
+            updateObject[propertyName] = value;
+            PostStatusMessage(updateObject);
+        }
+
+        private void SendTimeUpdate(string propertyName, string timeValue)
+        {
+            var updateObject = new JObject();
+            updateObject[propertyName] = timeValue;
+            PostStatusMessage(updateObject);
         }
 
         private void OnDeviceBeepEvent(object sender, EventArgs e)
