@@ -1,4 +1,5 @@
-﻿using Crestron.SimplSharpPro;
+﻿using System;
+using Crestron.SimplSharpPro;
 using Crestron.SimplSharpPro.DeviceSupport;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
@@ -49,6 +50,31 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		/// </summary>
 		private readonly LimitimerPropertiesConfig _config;
 
+		#region Private State Variables
+
+		/// <summary>
+		/// LED state variables
+		/// </summary>
+		private LimitimerLedState _program1LedState;
+		private LimitimerLedState _program2LedState;
+		private LimitimerLedState _program3LedState;
+		private LimitimerLedState _sessionLedState;
+		private bool _beepLedState;
+		private bool _blinkLedState;
+		private bool _greenLedState;
+		private bool _redLedState;
+		private bool _yellowLedState;
+		private bool _secondsModeIndicatorState;
+		private bool _beepState;
+
+		/// <summary>
+		/// Time string variables
+		/// </summary>
+		private string _totalTime;
+		private string _sumUpTime;
+		private string _remainingTime;
+
+		#endregion
 
 		/// <summary>
 		/// Connects/disconnects the comms of the plugin device
@@ -89,7 +115,33 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		/// </summary>
 		public IntFeedback StatusFeedback { get; private set; }
 
-        public BoolFeedback IsOnline => throw new System.NotImplementedException();
+        public BoolFeedback IsOnline => OnlineFeedback;
+
+		#region Public State Properties
+
+		/// <summary>
+		/// LED state properties
+		/// </summary>
+		public LimitimerLedState Program1LedState => _program1LedState;
+		public LimitimerLedState Program2LedState => _program2LedState;
+		public LimitimerLedState Program3LedState => _program3LedState;
+		public LimitimerLedState SessionLedState => _sessionLedState;
+		public bool BeepLedState => _beepLedState;
+		public bool BlinkLedState => _blinkLedState;
+		public bool GreenLedState => _greenLedState;
+		public bool RedLedState => _redLedState;
+		public bool YellowLedState => _yellowLedState;
+		public bool SecondsModeIndicatorState => _secondsModeIndicatorState;
+		public bool BeepState => _beepState;
+
+		/// <summary>
+		/// Time string properties
+		/// </summary>
+		public string TotalTime => _totalTime;
+		public string SumUpTime => _sumUpTime;
+		public string RemainingTime => _remainingTime;
+
+		#endregion
 
         /// <summary>
         /// Plugin device constructor for devices that need IBasicCommunication
@@ -106,6 +158,22 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			// TODO [ ] Update the constructor as needed for the plugin device being developed
 
 			_config = config;
+
+			// Initialize state variables with default values
+			_program1LedState = LimitimerLedState.off;
+			_program2LedState = LimitimerLedState.off;
+			_program3LedState = LimitimerLedState.off;
+			_sessionLedState = LimitimerLedState.off;
+			_beepLedState = false;
+			_blinkLedState = false;
+			_greenLedState = false;
+			_redLedState = false;
+			_yellowLedState = false;
+			_secondsModeIndicatorState = false;
+			_beepState = false;
+			_totalTime = "00:00";
+			_sumUpTime = "00:00";
+			_remainingTime = "00:00";
 
             ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
 
@@ -145,6 +213,14 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 				StatusFeedback.FireUpdate();
 		}
 
+		/// <summary>
+		/// Poll method for the communication monitor - currently not used for this device
+		/// </summary>
+		private void Poll()
+		{
+			// No polling needed for this device
+		}
+
 		// TODO [ ] If not using an API with a delimeter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
@@ -169,8 +245,151 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		{
 			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: {0}", message);
 			
-			
+			if (string.IsNullOrEmpty(message))
+				return;
+
+			// Remove delimiter and trim whitespace
+			var cleanMessage = message.Replace(CommsDelimiter, "").Trim();
+
+			switch (cleanMessage)
+			{
+				// Program 1 LED states
+				case "P1LEDON":
+					_program1LedState = LimitimerLedState.on;
+					break;
+				case "P1LEDDM":
+					_program1LedState = LimitimerLedState.dim;
+					break;
+				case "P1LEDOF":
+					_program1LedState = LimitimerLedState.off;
+					break;
+
+				// Program 2 LED states
+				case "P2LEDON":
+					_program2LedState = LimitimerLedState.on;
+					break;
+				case "P2LEDDM":
+					_program2LedState = LimitimerLedState.dim;
+					break;
+				case "P2LEDOF":
+					_program2LedState = LimitimerLedState.off;
+					break;
+
+				// Program 3 LED states
+				case "P3LEDON":
+					_program3LedState = LimitimerLedState.on;
+					break;
+				case "P3LEDDM":
+					_program3LedState = LimitimerLedState.dim;
+					break;
+				case "P3LEDOF":
+					_program3LedState = LimitimerLedState.off;
+					break;
+
+				// Session LED states
+				case "SESLEDON":
+					_sessionLedState = LimitimerLedState.on;
+					break;
+				case "SESLEDDM":
+					_sessionLedState = LimitimerLedState.dim;
+					break;
+				case "SESLEDOF":
+					_sessionLedState = LimitimerLedState.off;
+					break;
+
+				// Beep LED states
+				case "BPLEDON":
+					_beepLedState = true;
+					break;
+				case "BPLEDOF":
+					_beepLedState = false;
+					break;
+
+				// Blink LED states
+				case "BKLEDON":
+					_blinkLedState = true;
+					break;
+				case "BKLEDOF":
+					_blinkLedState = false;
+					break;
+
+				// Green LED states
+				case "GRNLEDON":
+					_greenLedState = true;
+					break;
+				case "GRNLEDOF":
+					_greenLedState = false;
+					break;
+
+				// Yellow LED states
+				case "YELLEDON":
+					_yellowLedState = true;
+					break;
+				case "YELLEDOF":
+					_yellowLedState = false;
+					break;
+
+				// Red LED states
+				case "REDLEDON":
+					_redLedState = true;
+					break;
+				case "REDLEDOF":
+					_redLedState = false;
+					break;
+
+				// Seconds Mode Indicator states
+				case "SMON":
+					_secondsModeIndicatorState = true;
+					break;
+				case "SMOF":
+					_secondsModeIndicatorState = false;
+					break;
+
+				// Beep
+				case "BEEP":
+					_beepState = true;
+					break;
+
+				default:
+					// Check for time string patterns
+					if (cleanMessage.StartsWith("TTSTR="))
+					{
+						// Total Time String (format: TTSTR=MM:SS)
+						_totalTime = cleanMessage.Substring(6); // Remove "TTSTR=" prefix
+					}
+					else if (cleanMessage.StartsWith("STSTR="))
+					{
+						// Sum-Up Time String (format: STSTR=MM:SS)
+						_sumUpTime = cleanMessage.Substring(6); // Remove "STSTR=" prefix
+					}
+					else if (cleanMessage.StartsWith("RTSTR="))
+					{
+						// Remaining Time String (format: RTSTR=MM:SS)
+						_remainingTime = cleanMessage.Substring(6); // Remove "RTSTR=" prefix
+					}
+					else
+					{
+						Debug.LogMessage(Serilog.Events.LogEventLevel.Warning, this, "Unknown feedback message received: {0}", cleanMessage);
+					}
+					break;
+			}
+
+			// Trigger state change notification after processing any feedback
+			OnStateChanged();
         }
+
+		/// <summary>
+		/// Event that fires when device state changes - can be used by messenger for notifications
+		/// </summary>
+		public event EventHandler StateChanged;
+
+		/// <summary>
+		/// Triggers the StateChanged event
+		/// </summary>
+		private void OnStateChanged()
+		{
+			StateChanged?.Invoke(this, EventArgs.Empty);
+		}
 
 
 		// TODO [ ] If not using an ACII based API, delete the properties below
