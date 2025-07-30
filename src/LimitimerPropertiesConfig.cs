@@ -140,18 +140,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		/// </example>
 		[JsonProperty("DeviceDictionary")]
 		public Dictionary<string, EssentialsPluginTemplateConfigObjectDictionary> DeviceDictionary { get; set; }
-
-		/// <summary>
-		/// Constuctor
-		/// </summary>
-		/// <remarks>
-		/// If using a collection you must instantiate the collection in the constructor
-		/// to avoid exceptions when reading the configuration file 
-		/// </remarks>
-        public EssentialsPluginTemplateConfigObject()
-		{
-			DeviceDictionary = new Dictionary<string, EssentialsPluginTemplateConfigObjectDictionary>();
-		}
 	}
 
 	/// <summary>
