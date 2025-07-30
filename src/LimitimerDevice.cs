@@ -177,13 +177,14 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
             ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
 
+			// TODO [ ] no polling for this device - anything needed to change here?
+			_comms = comms;
+			_commsMonitor = new GenericCommunicationMonitor(this, _comms, _config.PollTimeMs, _config.WarningTimeoutMs, _config.ErrorTimeoutMs, Poll);
+
 			ConnectFeedback = new BoolFeedback(key, () => Connect);
 			OnlineFeedback = new BoolFeedback(key, () => _commsMonitor.IsOnline);
 			StatusFeedback = new IntFeedback(key, () => (int)_commsMonitor.Status);
 
-			// TODO [ ] no polling for this device - anything needed to change here?
-			_comms = comms;
-			_commsMonitor = new GenericCommunicationMonitor(this, _comms, _config.PollTimeMs, _config.WarningTimeoutMs, _config.ErrorTimeoutMs, Poll);
 
 			// TODO [ ] comms will always be rs-232 - anything to do here?
 			var socket = _comms as ISocketStatus;
@@ -406,6 +407,132 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 			_comms.SendText(string.Format("{0}{1}", text, CommsDelimiter));
 		}
+
+		#region Action Methods
+
+		/// <summary>
+		/// Activates Program 1
+		/// </summary>
+		public void Program1()
+		{
+			SendText("PRG1");
+		}
+
+		/// <summary>
+		/// Activates Program 2
+		/// </summary>
+		public void Program2()
+		{
+			SendText("PRG2");
+		}
+
+		/// <summary>
+		/// Activates Program 3
+		/// </summary>
+		public void Program3()
+		{
+			SendText("PRG3");
+		}
+
+		/// <summary>
+		/// Activates Session 4
+		/// </summary>
+		public void Session4()
+		{
+			SendText("SESS");
+		}
+
+		/// <summary>
+		/// Activates beep
+		/// </summary>
+		public void Beep()
+		{
+			SendText("BEEP");
+		}
+
+		/// <summary>
+		/// Activates beep once
+		/// </summary>
+/// TODO [] determine how/if we can reproduce this function (simulates press/hold of panel beep button to elicit a single beep)
+		public void Beep1()
+		{
+			//SendText("BEEP1");
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// Toggles blink mode
+		/// </summary>
+		public void Blink()
+		{
+			SendText("BLNK");
+		}
+
+		/// <summary>
+		/// Starts or stops timer
+		/// </summary>
+		public void StartStop()
+		{
+			SendText("STOP");
+		}
+
+		/// <summary>
+		/// Repeats current operation
+		/// </summary>
+		public void Repeat()
+		{
+			SendText("REPT");
+		}
+
+		/// <summary>
+		/// Clears timer
+		/// </summary>
+		public void Clear()
+		{
+			SendText("CLR");
+		}
+
+		/// <summary>
+		/// Increases total time
+		/// </summary>
+		public void TotalTimePlus()
+		{
+			SendText("TTUP");
+		}
+
+		/// <summary>
+		/// Decreases total time
+		/// </summary>
+		public void TotalTimeMinus()
+		{
+			SendText("TTDN");
+		}
+
+		/// <summary>
+		/// Increases sum-up time
+		/// </summary>
+		public void SumTimePlus()
+		{
+			SendText("STUP");
+		}
+
+		/// <summary>
+		/// Decreases sum-up time
+		/// </summary>
+		public void SumTimeMinus()
+		{
+			SendText("STDN");
+		}
+
+		/// <summary>
+		/// Sets seconds mode
+		/// </summary>
+		public void SetSeconds()
+		{
+			SendText("SSEC");
+		}
+
+		#endregion
 
         #endregion
 

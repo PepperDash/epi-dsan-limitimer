@@ -54,12 +54,108 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         {
             base.RegisterActions();
             AddAction("/fullStatus", SendFullStatus);
+
+            // Device control actions
+            AddAction("/program1", Program1Action);
+            AddAction("/program2", Program2Action);
+            AddAction("/program3", Program3Action);
+            AddAction("/session4", Session4Action);
+            AddAction("/beep", BeepAction);
+            AddAction("/beep1", Beep1Action);
+            AddAction("/blink", BlinkAction);
+            AddAction("/startStop", StartStopAction);
+            AddAction("/repeat", RepeatAction);
+            AddAction("/clear", ClearAction);
+            AddAction("/totalTimePlus", TotalTimePlusAction);
+            AddAction("/totalTimeMinus", TotalTimeMinusAction);
+            AddAction("/sumTimePlus", SumTimePlusAction);
+            AddAction("/sumTimeMinus", SumTimeMinusAction);
+            AddAction("/setSeconds", SetSecondsAction);
         }
 
         private void SendFullStatus(string id, JToken content) //called once by front-end at start up, individual statuses will be sent as unsolicited feedback
         {
             SendFullStatusUpdate();
         }
+
+        #region Device Action Methods
+
+        private void Program1Action(string id, JToken content)
+        {
+            _limitimerDevice.Program1();
+        }
+
+        private void Program2Action(string id, JToken content)
+        {
+            _limitimerDevice.Program2();
+        }
+
+        private void Program3Action(string id, JToken content)
+        {
+            _limitimerDevice.Program3();
+        }
+
+        private void Session4Action(string id, JToken content)
+        {
+            _limitimerDevice.Session4();
+        }
+
+        private void BeepAction(string id, JToken content)
+        {
+            _limitimerDevice.Beep();
+        }
+
+        private void Beep1Action(string id, JToken content)
+        {
+            _limitimerDevice.Beep1();
+        }
+
+        private void BlinkAction(string id, JToken content)
+        {
+            _limitimerDevice.Blink();
+        }
+
+        private void StartStopAction(string id, JToken content)
+        {
+            _limitimerDevice.StartStop();
+        }
+
+        private void RepeatAction(string id, JToken content)
+        {
+            _limitimerDevice.Repeat();
+        }
+
+        private void ClearAction(string id, JToken content)
+        {
+            _limitimerDevice.Clear();
+        }
+
+        private void TotalTimePlusAction(string id, JToken content)
+        {
+            _limitimerDevice.TotalTimePlus();
+        }
+
+        private void TotalTimeMinusAction(string id, JToken content)
+        {
+            _limitimerDevice.TotalTimeMinus();
+        }
+
+        private void SumTimePlusAction(string id, JToken content)
+        {
+            _limitimerDevice.SumTimePlus();
+        }
+
+        private void SumTimeMinusAction(string id, JToken content)
+        {
+            _limitimerDevice.SumTimeMinus();
+        }
+
+        private void SetSecondsAction(string id, JToken content)
+        {
+            _limitimerDevice.SetSeconds();
+        }
+
+        #endregion
     }
 
     public class LimitimerStateMessage : DeviceStateMessageBase
