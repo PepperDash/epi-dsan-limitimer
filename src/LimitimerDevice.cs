@@ -5,15 +5,6 @@ using PepperDash.Essentials.Core.Queues;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
-	/// <summary>
-	/// Plugin device template for third party devices that use IBasicCommunication
-	/// </summary>
-	/// <remarks>
-	/// Rename the class to match the device plugin being developed.
-	/// </remarks>
-	/// <example>
-	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
-	/// </example>
 	public class LimitimerDevice : EssentialsDevice, IOnline
     {
 		/// <summary>
@@ -22,36 +13,23 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		// private EssentialsPluginTemplateConfigObject _config;
 
-		/// <summary>
-		/// Provides a queue and dedicated worker thread for processing feedback messages from a device.
-		/// </summary>
 		private GenericQueue ReceiveQueue;
 
         #region IBasicCommunication Properties and Constructor.  Remove if not needed.
 
-        // TODO [ ] Add, modify, remove properties and fields as needed for the plugin being developed
 		private readonly IBasicCommunication _comms;
 		private readonly GenericCommunicationMonitor _commsMonitor;
 
 		// _comms gather for ASCII based API's
-		// TODO [ ] If not using an ASCII based API, delete the properties below
 		private readonly CommunicationGather _commsGather;
 
-        /// <summary>
-        /// Set this value to that of the delimiter used by the API (if applicable)
-        /// </summary>
 		private const string CommsDelimiter = "\r";
 
-		/// <summary>
-		/// The properties configuration object for the plugin device
-		/// </summary>
 		private readonly LimitimerPropertiesConfig _config;
 
 		#region Private State Variables
 
-		/// <summary>
 		/// LED state variables
-		/// </summary>
 		private LimitimerLedState _program1LedState;
 		private LimitimerLedState _program2LedState;
 		private LimitimerLedState _program3LedState;
@@ -64,21 +42,13 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		private bool _secondsModeIndicatorState;
 		private bool _beepState;
 
-		/// <summary>
 		/// Time string variables
-		/// </summary>
 		private string _totalTime;
 		private string _sumUpTime;
 		private string _remainingTime;
 
 		#endregion
 
-		/// <summary>
-		/// Connects/disconnects the comms of the plugin device
-		/// </summary>
-		/// <remarks>
-		/// triggers the _comms.Connect/Disconnect as well as thee comms monitor start/stop
-		/// </remarks>
 		public bool Connect
 		{
 			get { return _comms.IsConnected; }
@@ -116,9 +86,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		#region Public State Properties
 
-		/// <summary>
 		/// LED state properties
-		/// </summary>
 		public LimitimerLedState Program1LedState => _program1LedState;
 		public LimitimerLedState Program2LedState => _program2LedState;
 		public LimitimerLedState Program3LedState => _program3LedState;
@@ -131,22 +99,13 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		public bool SecondsModeIndicatorState => _secondsModeIndicatorState;
 		public bool BeepState => _beepState;
 
-		/// <summary>
 		/// Time string properties
-		/// </summary>
 		public string TotalTime => _totalTime;
 		public string SumUpTime => _sumUpTime;
 		public string RemainingTime => _remainingTime;
 
 		#endregion
 
-        /// <summary>
-        /// Plugin device constructor for devices that need IBasicCommunication
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="name"></param>
-        /// <param name="config"></param>
-        /// <param name="comms"></param>
         public LimitimerDevice(string key, string name, LimitimerPropertiesConfig config, IBasicCommunication comms)
 			: base(key, name)
 		{
@@ -228,17 +187,13 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             ReceiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
-        // TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
-        void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
-        {
-            // TODO [ ] Implement method 
-            throw new System.NotImplementedException();
-        }
+        // // TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
+        // void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
+        // {
+        //     // TODO [ ] Implement method 
+        //     throw new System.NotImplementedException();
+        // }
 
-		/// <summary>
-		/// This method should perform any necessary parsing of feedback messages from the device
-		/// </summary>
-		/// <param name="message"></param>
 		void ProcessFeedbackMessage(string message)
 		{
 			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: {0}", message);
@@ -349,7 +304,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 					break;
 
 				default:
-					// Check for time string patterns
 					if (cleanMessage.StartsWith("TTSTR="))
 					{
 						// Total Time String (format: TTSTR=MM:SS)
@@ -376,22 +330,14 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			OnStateChanged();
         }
 
-		/// <summary>
-		/// Event that fires when device state changes - can be used by messenger for notifications
-		/// </summary>
 		public event EventHandler StateChanged;
 
-		/// <summary>
-		/// Triggers the StateChanged event
-		/// </summary>
 		private void OnStateChanged()
 		{
 			StateChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 
-		// TODO [ ] If not using an ACII based API, delete the properties below
-		/// <summary>
 		/// Sends text to the device plugin comms
 		/// </summary>
 		/// <remarks>
@@ -407,123 +353,78 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		#region Action Methods
 
-		/// <summary>
-		/// Activates Program 1
-		/// </summary>
 		public void Program1()
 		{
 			SendText("PRG1");
 		}
 
-		/// <summary>
-		/// Activates Program 2
-		/// </summary>
 		public void Program2()
 		{
 			SendText("PRG2");
 		}
 
-		/// <summary>
-		/// Activates Program 3
-		/// </summary>
 		public void Program3()
 		{
 			SendText("PRG3");
 		}
 
-		/// <summary>
-		/// Activates Session 4
-		/// </summary>
 		public void Session4()
 		{
 			SendText("SESS");
 		}
 
-		/// <summary>
-		/// Activates beep
-		/// </summary>
 		public void Beep()
 		{
 			SendText("BEEP");
 		}
 
-		/// <summary>
-		/// Activates beep once
-		/// </summary>
-/// TODO [] determine how/if we can reproduce this function (simulates press/hold of panel beep button to elicit a single beep)
+		/// TODO [] determine how/if we can reproduce this function (simulates press/hold of panel beep button to elicit a single beep)
 		public void Beep1()
 		{
 			//SendText("BEEP1");
 			throw new NotImplementedException();
 		}
 
-		/// <summary>
-		/// Toggles blink mode
-		/// </summary>
 		public void Blink()
 		{
 			SendText("BLNK");
 		}
 
-		/// <summary>
-		/// Starts or stops timer
-		/// </summary>
 		public void StartStop()
 		{
 			SendText("STOP");
 		}
 
-		/// <summary>
-		/// Repeats current operation
-		/// </summary>
 		public void Repeat()
 		{
 			SendText("REPT");
 		}
 
-		/// <summary>
-		/// Clears timer
-		/// </summary>
 		public void Clear()
 		{
 			SendText("CLR");
 		}
 
-		/// <summary>
-		/// Increases total time
-		/// </summary>
 		public void TotalTimePlus()
 		{
 			SendText("TTUP");
 		}
 
-		/// <summary>
-		/// Decreases total time
-		/// </summary>
 		public void TotalTimeMinus()
 		{
 			SendText("TTDN");
 		}
 
-		/// <summary>
-		/// Increases sum-up time
-		/// </summary>
 		public void SumTimePlus()
 		{
 			SendText("STUP");
 		}
 
-		/// <summary>
-		/// Decreases sum-up time
-		/// </summary>
 		public void SumTimeMinus()
 		{
 			SendText("STDN");
 		}
 
-		/// <summary>
-		/// Sets seconds mode
-		/// </summary>
 		public void SetSeconds()
 		{
 			SendText("SSEC");

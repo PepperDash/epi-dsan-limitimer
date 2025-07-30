@@ -13,14 +13,11 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             : base(key, path)
         {
             _limitimerDevice = device;
-            
-            // Subscribe to device state changes for real-time updates
             _limitimerDevice.StateChanged += OnDeviceStateChanged;
         }
 
         private void OnDeviceStateChanged(object sender, EventArgs e)
         {
-            // Send updated state to all connected clients when device state changes
             SendFullStatusUpdate();
         }
 
@@ -68,7 +65,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             AddAction("/setSeconds", SetSecondsAction);
         }
 
-        private void SendFullStatus(string id, JToken content) //called once by front-end at start up, individual statuses will be sent as unsolicited feedback
+        private void SendFullStatus(string id, JToken content)
         {
             SendFullStatusUpdate();
         }
