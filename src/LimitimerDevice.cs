@@ -40,7 +40,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		private bool _redLedState;
 		private bool _yellowLedState;
 		private bool _secondsModeIndicatorState;
-		private bool _beepState;
 
 		/// Time string variables
 		private string _totalTime;
@@ -97,7 +96,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		public bool RedLedState => _redLedState;
 		public bool YellowLedState => _yellowLedState;
 		public bool SecondsModeIndicatorState => _secondsModeIndicatorState;
-		public bool BeepState => _beepState;
 
 		/// Time string properties
 		public string TotalTime => _totalTime;
@@ -126,7 +124,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			_redLedState = false;
 			_yellowLedState = false;
 			_secondsModeIndicatorState = false;
-			_beepState = false;
 			_totalTime = "00:00";
 			_sumUpTime = "00:00";
 			_remainingTime = "00:00";
@@ -298,9 +295,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 					_secondsModeIndicatorState = false;
 					break;
 
-				// Beep
+				// Beep event
 				case "BEEP":
-					_beepState = true;
+					OnBeepEvent();
 					break;
 
 				default:
@@ -331,10 +328,17 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         }
 
 		public event EventHandler StateChanged;
+		public event EventHandler BeepEvent;
 
 		private void OnStateChanged()
 		{
 			StateChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnBeepEvent()
+		{
+			// TODO: Implement BeepEvent functionality
+			throw new NotImplementedException("BeepEvent handling not yet implemented");
 		}
 
 

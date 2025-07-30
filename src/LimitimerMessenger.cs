@@ -14,11 +14,18 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         {
             _limitimerDevice = device;
             _limitimerDevice.StateChanged += OnDeviceStateChanged;
+            _limitimerDevice.BeepEvent += OnDeviceBeepEvent;
         }
 
         private void OnDeviceStateChanged(object sender, EventArgs e)
         {
             SendFullStatusUpdate();
+        }
+
+        private void OnDeviceBeepEvent(object sender, EventArgs e)
+        {
+            // Send a separate beep event message
+            PostStatusMessage(new LimitimerBeepEventMessage());
         }
 
         private void SendFullStatusUpdate()
@@ -35,7 +42,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 RedLedState = _limitimerDevice.RedLedState,
                 YellowLedState = _limitimerDevice.YellowLedState,
                 SecondsModeIndicatorState = _limitimerDevice.SecondsModeIndicatorState,
-                Beep = _limitimerDevice.BeepState,
                 TotalTime = _limitimerDevice.TotalTime,
                 SumUpTime = _limitimerDevice.SumUpTime,
                 RemainingTime = _limitimerDevice.RemainingTime
@@ -184,9 +190,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         public bool SecondsModeIndicatorState { get; set; }
 
-        [JsonProperty("beep")]
-        public bool Beep { get; set; }
-
         [JsonProperty("totalTime")]
         public string TotalTime { get; set; }
 
@@ -198,6 +201,12 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 
 
+    }
+
+    public class LimitimerBeepEventMessage : DeviceStateMessageBase
+    {
+        [JsonProperty("eventType")]
+        public string EventType { get; set; } = "beep";
     }
 
     public enum LimitimerLedState
