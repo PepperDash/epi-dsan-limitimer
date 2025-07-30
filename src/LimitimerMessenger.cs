@@ -12,11 +12,42 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 {
     public class LimitimerMessenger : MessengerBase
     {
+        private readonly LimitimerDevice _limitimerDevice;
 
-        public LimitimerMessenger(string key, string path) //add reference to this devie type when defined
+        public LimitimerMessenger(string key, string path, LimitimerDevice device)
             : base(key, path)
         {
+            _limitimerDevice = device;
+            
+            // Subscribe to device state changes for real-time updates
+            _limitimerDevice.StateChanged += OnDeviceStateChanged;
+        }
 
+        private void OnDeviceStateChanged(object sender, EventArgs e)
+        {
+            // Send updated state to all connected clients when device state changes
+            SendFullStatusUpdate();
+        }
+
+        private void SendFullStatusUpdate()
+        {
+            PostStatusMessage(new LimitimerStateMessage
+            {
+                Program1LedState = _limitimerDevice.Program1LedState,
+                Program2LedState = _limitimerDevice.Program2LedState,
+                Program3LedState = _limitimerDevice.Program3LedState,
+                SessionLedState = _limitimerDevice.SessionLedState,
+                BeepLedState = _limitimerDevice.BeepLedState,
+                BlinkLedState = _limitimerDevice.BlinkLedState,
+                GreenLedState = _limitimerDevice.GreenLedState,
+                RedLedState = _limitimerDevice.RedLedState,
+                YellowLedState = _limitimerDevice.YellowLedState,
+                SecondsModeIndicatorState = _limitimerDevice.SecondsModeIndicatorState,
+                Beep = _limitimerDevice.BeepState,
+                TotalTime = _limitimerDevice.TotalTime,
+                SumUpTime = _limitimerDevice.SumUpTime,
+                RemainingTime = _limitimerDevice.RemainingTime
+            });
         }
 
         protected override void RegisterActions()
@@ -27,23 +58,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         private void SendFullStatus(string id, JToken content) //called once by front-end at start up, individual statuses will be sent as unsolicited feedback
         {
-            PostStatusMessage(new LimitimerStateMessage
-            {
-                //Define Getter Property methods
-                /*Program1LedState = GetProgram1LedState()
-                Program2LedState = GetProgram2LedState(),
-                Program3LedState = GetProgram3LedState(),
-                BeepLedState = GetBeepLedState(),
-                BlinkLedState = GetBlinkLedState(),
-                GreenLedState = GetGreenLedState(),
-                RedLedState = GetRedLedState(),
-                YellowLedState = GetYellowLedState(),
-                SecondsModeIndicatorState = GetSecondsModeIndicatorState(),
-                Beep = GetBeepState(),
-                TotalTime = GetTotalTime(),
-                SumUpTime = GetSumUpTime(),
-                RemainingTime = GetRemainingTime()*/
-            });
+            SendFullStatusUpdate();
         }
     }
 
@@ -57,6 +72,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         [JsonProperty("program3LedState")]
         public LimitimerLedState Program3LedState { get; set; }
+
+        [JsonProperty("sessionLedState")]
+        public LimitimerLedState SessionLedState { get; set; }
 
         [JsonProperty("beepLedState")]
         public bool BeepLedState { get; set; }
