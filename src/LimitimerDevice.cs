@@ -137,8 +137,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		{
 			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Constructing new {0} instance", name);
 
-			// TODO [ ] Update the constructor as needed for the plugin device being developed
-
 			_config = config;
 
 			// Initialize state variables with default values
@@ -181,9 +179,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			SumUpTimeFeedback = new StringFeedback($"{key}-sumUpTime", () => _sumUpTime);
 			RemainingTimeFeedback = new StringFeedback($"{key}-remainingTime", () => _remainingTime);
 
-			// TODO: Add feedbacks to collection if available in base class
-			// Feedbacks?.Add(Program1LedStateFeedback); etc.
-
 
 			// TODO [ ] comms will always be rs-232 - anything to do here?
 			var socket = _comms as ISocketStatus;
@@ -224,8 +219,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		// TODO [ ] If not using an API with a delimeter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
-			// TODO [ ] Implement method 
-			
             // Enqueues the message to be processed in a dedicated thread, but the specified method
             ReceiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
@@ -234,7 +227,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         // void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
         // {
         //     // TODO [ ] Implement method 
-        //     throw new System.NotImplementedException();
         // }
 
 		void ProcessFeedbackMessage(string message)
@@ -447,8 +439,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		/// TODO [] determine how/if we can reproduce this function (simulates press/hold of panel beep button to elicit a single beep)
 		public void Beep1()
 		{
-			//SendText("BEEP1");
-			throw new NotImplementedException();
+			
 		}
 
 		public void Blink()
