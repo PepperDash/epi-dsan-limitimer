@@ -35,10 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
- 	<PackageReference Include="PepperDashEssentials" Version="2.12.1" >
+ 	<PackageReference Include="PepperDashEssentials" Version="2.8.0" >
   		<ExcludeAssets>runtime</ExcludeAssets>
  	</PackageReference>
- 	<PackageReference Include="PepperDash.Essentials.MobileControl" Version="2.12.1" >
+ 	<PackageReference Include="PepperDash.Essentials.MobileControl" Version="2.8.0" >
   		<ExcludeAssets>runtime</ExcludeAssets>
  	</PackageReference>
   </ItemGroup>

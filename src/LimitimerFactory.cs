@@ -12,7 +12,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         public LimitimerFactory()
         {
-			MinimumEssentialsFrameworkVersion = "2.12.1";
+			MinimumEssentialsFrameworkVersion = "2.8.0";
 
             TypeNames = new List<string>() { "limitimer" };
         }
