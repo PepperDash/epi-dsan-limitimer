@@ -11,7 +11,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         private readonly LimitimerDevice _limitimerDevice;
 
         public LimitimerMessenger(string key, string path, LimitimerDevice device)
-            : base(key, path)
+            : base(key, path, device)
         {
             _limitimerDevice = device;
 
@@ -57,6 +57,8 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         private void SendLedUpdate(string propertyName, LimitimerLedState state)
         {
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendLedUpdate: propertyName={0}", propertyName);
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendLedUpdate: state={0}", state);
             var updateObject = new JObject();
             updateObject[propertyName] = JToken.FromObject(state);
             PostStatusMessage(updateObject);
@@ -67,6 +69,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             var updateObject = new JObject();
             updateObject[propertyName] = value;
             PostStatusMessage(updateObject);
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendBoolUpdate: object={0}", updateObject);
         }
 
         private void SendTimeUpdate(string propertyName, string timeValue)
@@ -74,6 +77,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             var updateObject = new JObject();
             updateObject[propertyName] = timeValue;
             PostStatusMessage(updateObject);
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendTimeUpdate: object={0}", updateObject);
         }
 
         private void OnDeviceBeepEvent(object sender, EventArgs e)
@@ -265,8 +269,8 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
     public enum LimitimerLedState
     {
+        off,
         on,
-        dim,
-        off
+        dim
     }
 }

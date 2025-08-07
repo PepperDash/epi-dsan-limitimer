@@ -229,7 +229,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         //     // TODO [ ] Implement method 
         // }
 
-		void ProcessFeedbackMessage(string message)
+		public void ProcessFeedbackMessage(string message)
 		{
 			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: {0}", message);
 			
@@ -243,7 +243,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			{
 				// Program 1 LED states
 				case "P1LEDON":
+					Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: case-> P1LEDON  currentValue = {0}", _program1LedState);
 					_program1LedState = LimitimerLedState.on;
+					Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: case-> P1LEDON  newValue = {0}", _program1LedState);
 					break;
 				case "P1LEDDM":
 					_program1LedState = LimitimerLedState.dim;
@@ -370,6 +372,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		private void OnStateChanged()
 		{
+			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "OnStateChanged");
 			// Fire individual feedback updates - this enables targeted messaging in the messenger
 			Program1LedStateFeedback?.FireUpdate();
 			Program2LedStateFeedback?.FireUpdate();
