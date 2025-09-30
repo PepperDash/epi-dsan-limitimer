@@ -86,7 +86,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             PostStatusMessage(new LimitimerBeepEventMessage());
         }
 
-        private void SendFullStatusUpdate()
+        private void SendFullStatusUpdate(string id)
         {
             PostStatusMessage(new LimitimerStateMessage
             {
@@ -103,7 +103,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 TotalTime = _limitimerDevice.TotalTime,
                 SumUpTime = _limitimerDevice.SumUpTime,
                 RemainingTime = _limitimerDevice.RemainingTime
-            });
+            }, id);
         }
 
         protected override void RegisterActions()
@@ -131,7 +131,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         private void SendFullStatus(string id, JToken content)
         {
-            SendFullStatusUpdate();
+            SendFullStatusUpdate(id);
         }
 
         #region Device Action Methods
