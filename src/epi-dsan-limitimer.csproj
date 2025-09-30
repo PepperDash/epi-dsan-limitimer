@@ -6,17 +6,17 @@
 		<TargetFramework>net472</TargetFramework>
 		<RootNamespace>PepperDash.Essentials.Plugin</RootNamespace>
 		<Deterministic>false</Deterministic>
-		<AssemblyTitle>PepperDash.Essentials.Plugin.Make.Model</AssemblyTitle>
+		<AssemblyTitle>PepperDash.Essentials.Plugin.Dsan.Limitimer</AssemblyTitle>
 		<Company>PepperDash Technology</Company>
-		<Description>This software is a template for a PepperDash Essentials Plugin.</Description>
+		<Description>Plugin for control of a Dsan Limitimer device</Description>
 		<Copyright>Copyright 2025</Copyright>
 		<Version>1.0.0-local</Version>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<InformationalVersion>$(Version)</InformationalVersion>
 		<OutputPath>bin\$(Configuration)\</OutputPath>
 		<Authors>PepperDash Technology</Authors>
-		<PackageId>Pepperdash.Essentials.Plugins.Template</PackageId>
-		<PackageProjectUrl>https://github.com/PepperDash/EssentialsPluginTemplate.git</PackageProjectUrl>
+		<PackageId>Pepperdash.Essentials.Plugins.Dsan.Limitimer</PackageId>
+		<PackageProjectUrl>https://github.com/PepperDash/epi-dsan-limitimer.git</PackageProjectUrl>
 		<PackageTags>crestron 4series essentials plugin template</PackageTags>
 	</PropertyGroup>
 
