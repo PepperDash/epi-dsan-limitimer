@@ -522,6 +522,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		}
 
 
+		/// <summary>
 		/// Sends text to the device plugin comms
 		/// </summary>
 		/// <remarks>
@@ -535,31 +536,60 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			_comms.SendText(string.Format("{0}{1}", text, CommsDelimiter));
 		}
 
+		/// <summary>
+		/// Sends a properly formatted Limitimer command with checksum
+		/// </summary>
+		/// <param name="command">Command string (e.g., "PRG1", "PRG2", etc.)</param>
+		private void SendLimitimerCommand(string command)
+		{
+			if (string.IsNullOrEmpty(command)) return;
+
+			// Calculate checksum: sum all bytes of command string + space
+			// Example: "PRG1" = P(0x50) + R(0x52) + G(0x47) + 1(0x31) + Space(0x20) = 0x13A
+			// Use lower 2 hex digits: 3A
+			var commandWithSpace = command + " ";
+			int checksum = 0;
+			foreach (char c in commandWithSpace)
+			{
+				checksum += (int)c;
+			}
+
+			// Use lower 2 hex digits 
+			var checksumHex = (checksum & 0xFF).ToString("X2");
+
+			// Format: >COMMAND CHECKSUM<CR>
+			var fullCommand = string.Format(">{0} {1}", command, checksumHex);
+			
+			Debug.LogMessage(Serilog.Events.LogEventLevel.Debug, this, "Sending Limitimer command: {0} (calculated checksum from bytes: {1:X})", fullCommand, checksum);
+			
+			_comms.SendText(string.Format("{0}{1}", fullCommand, CommsDelimiter));
+		}
+
 		#region Action Methods
 
 		public void Program1()
 		{
-			SendText("PRG1");
+			SendLimitimerCommand("PRG1");
 		}
 
 		public void Program2()
 		{
-			SendText("PRG2");
+			SendLimitimerCommand("PRG2");
 		}
 
 		public void Program3()
 		{
-			SendText("PRG3");
+			SendLimitimerCommand("PRG3");
 		}
 
 		public void Session4()
 		{
-			SendText("SESS");
+			SendLimitimerCommand("SESS");
 		}
 
 		public void Beep()
 		{
-			SendText("BEEP");
+			SendLimitimerCommand("BEEP");
 		}
 
 		/// TODO [] determine how/if we can reproduce this function (simulates press/hold of panel beep button to elicit a single beep)
@@ -570,47 +600,47 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		public void Blink()
 		{
-			SendText("BLNK");
+			SendLimitimerCommand("BLNK");
 		}
 
 		public void StartStop()
 		{
-			SendText("STOP");
+			SendLimitimerCommand("STOP");
 		}
 
 		public void Repeat()
 		{
-			SendText("REPT");
+			SendLimitimerCommand("REPT");
 		}
 
 		public void Clear()
 		{
-			SendText("CLR");
+			SendLimitimerCommand("CLR");
 		}
 
 		public void TotalTimePlus()
 		{
-			SendText("TTUP");
+			SendLimitimerCommand("TTUP");
 		}
 
 		public void TotalTimeMinus()
 		{
-			SendText("TTDN");
+			SendLimitimerCommand("TTDN");
 		}
 
 		public void SumTimePlus()
 		{
-			SendText("STUP");
+			SendLimitimerCommand("STUP");
 		}
 
 		public void SumTimeMinus()
 		{
-			SendText("STDN");
+			SendLimitimerCommand("STDN");
 		}
 
 		public void SetSeconds()
 		{
-			SendText("SSEC");
+			SendLimitimerCommand("SSEC");
 		}
 
 		#endregion
