@@ -8,7 +8,7 @@ using PepperDash.Essentials.Core.Queues;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
-	public class LimitimerDevice : EssentialsDevice, IOnline
+	public class LimitimerDevice : EssentialsDevice, IOnline, ICommunicationMonitor
     {
 		// private EssentialsPluginTemplateConfigObject _config;
 
@@ -19,8 +19,10 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		private readonly IBasicCommunication _comms;
 		private readonly GenericCommunicationMonitor _commsMonitor;
 
-		// _comms gather for ASCII based API's
-		private readonly CommunicationGather _commsGather;
+		public StatusMonitorBase CommunicationMonitor => _commsMonitor;
+
+        // _comms gather for ASCII based API's
+        private readonly CommunicationGather _commsGather;
 
 		private const string CommsDelimiter = "\r";
 
@@ -47,31 +49,10 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 		#endregion
 
-		public bool Connect
-		{
-			get { return _comms.IsConnected; }
-			set
-			{
-				if (value)
-				{
-					_comms.Connect();
-					_commsMonitor.Start();
-				}
-				else
-				{
-					_comms.Disconnect();
-					_commsMonitor.Stop();
-				}
-			}
-		}
-
-		public BoolFeedback ConnectFeedback { get; private set; }
-
-		public BoolFeedback OnlineFeedback { get; private set; }
 
 		public IntFeedback StatusFeedback { get; private set; }
 
-        public BoolFeedback IsOnline => OnlineFeedback;
+        public BoolFeedback IsOnline => CommunicationMonitor.IsOnlineFeedback;
 
 		#region State Feedback Objects
 
@@ -97,21 +78,164 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		#region Public State Properties
 
 		/// LED state properties
-		public LimitimerLedState Program1LedState => _program1LedState;
-		public LimitimerLedState Program2LedState => _program2LedState;
-		public LimitimerLedState Program3LedState => _program3LedState;
-		public LimitimerLedState SessionLedState => _sessionLedState;
-		public bool BeepLedState => _beepLedState;
-		public bool BlinkLedState => _blinkLedState;
-		public bool GreenLedState => _greenLedState;
-		public bool RedLedState => _redLedState;
-		public bool YellowLedState => _yellowLedState;
-		public bool SecondsModeIndicatorState => _secondsModeIndicatorState;
+		public LimitimerLedState Program1LedState
+		{
+			get { return _program1LedState; }
+			set
+			{
+				if (_program1LedState != value)
+                {
+                    _program1LedState = value;
+                    Program1LedStateFeedback?.FireUpdate();
+                }
+            }
+		}
+		public LimitimerLedState Program2LedState
+        {
+            get { return _program2LedState; }
+            set
+            {
+                if (_program2LedState != value)
+                {
+                    _program2LedState = value;
+                    Program2LedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+        public LimitimerLedState Program3LedState
+        {
+            get { return _program3LedState; }
+            set
+            {
+                if (_program3LedState != value)
+                {
+                    _program3LedState = value;
+                    Program3LedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+        public LimitimerLedState SessionLedState
+        {
+            get { return _sessionLedState; }
+            set
+            {
+                if (_sessionLedState != value)
+                {
+                    _sessionLedState = value;
+                    SessionLedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+        public bool BeepLedState
+        {
+            get { return _beepLedState; }
+            set
+            {
+                if (_beepLedState != value)
+                {
+                    _beepLedState = value;
+                    BeepLedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+		public bool BlinkLedState
+        {
+            get { return _blinkLedState; }
+            set
+            {
+                if (_blinkLedState != value)
+                {
+                    _blinkLedState = value;
+                    BlinkLedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+        public bool GreenLedState
+        {
+            get { return _greenLedState; }
+            set
+            {
+                if (_greenLedState != value)
+                {
+                    _greenLedState = value;
+                    GreenLedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+        public bool RedLedState
+        {
+            get { return _redLedState; }
+            set
+            {
+                if (_redLedState != value)
+                {
+                    _redLedState = value;
+                    RedLedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+        public bool YellowLedState
+        {
+            get { return _yellowLedState; }
+            set
+            {
+                if (_yellowLedState != value)
+                {
+                    _yellowLedState = value;
+                    YellowLedStateFeedback?.FireUpdate();
+                }
+            }
+        }
+        public bool SecondsModeIndicatorState
+        {
+            get { return _secondsModeIndicatorState; }
+            set
+            {
+                if (_secondsModeIndicatorState != value)
+                {
+                    _secondsModeIndicatorState = value;
+                    SecondsModeIndicatorStateFeedback?.FireUpdate();
+                }
+            }
+        }
 
-		/// Time string properties
-		public string TotalTime => _totalTime;
-		public string SumUpTime => _sumUpTime;
-		public string RemainingTime => _remainingTime;
+        /// Time string properties
+        public string TotalTime
+        {
+            get { return _totalTime; }
+            set
+            {
+                if (_totalTime != value)
+                {
+                    _totalTime = value;
+                    TotalTimeFeedback?.FireUpdate();
+                }
+            }
+        }
+        public string SumUpTime
+        {
+            get { return _sumUpTime; }
+            set
+            {
+                if (_sumUpTime != value)
+                {
+                    _sumUpTime = value;
+                    SumUpTimeFeedback?.FireUpdate();
+                }
+            }
+        }
+        public string RemainingTime
+        {
+            get { return _remainingTime; }
+            set
+            {
+                if (_remainingTime != value)
+                {
+                    _remainingTime = value;
+                    RemainingTimeFeedback?.FireUpdate();
+                }
+            }
+        }
 
         #endregion
 
@@ -121,7 +245,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
 			if (mc == null)
 			{
-				Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "Mobile Control not found", this);
+				this.LogInformation("Mobile Control not found");
 				return;
 			}
 
@@ -135,8 +259,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		public LimitimerDevice(string key, string name, LimitimerPropertiesConfig config, IBasicCommunication comms)
 			: base(key, name)
 		{
-			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Constructing new {0} instance", name);
-
 			_config = config;
 
 			// Initialize state variables with default values
@@ -160,34 +282,23 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			_comms = comms;
 			_commsMonitor = new GenericCommunicationMonitor(this, _comms, _config.PollTimeMs, _config.WarningTimeoutMs, _config.ErrorTimeoutMs, Poll);
 
-			ConnectFeedback = new BoolFeedback(key, () => Connect);
-			OnlineFeedback = new BoolFeedback(key, () => _commsMonitor.IsOnline);
 			StatusFeedback = new IntFeedback(key, () => (int)_commsMonitor.Status);
 
 			// Initialize state feedback objects - following NVX pattern
-			Program1LedStateFeedback = new IntFeedback($"{key}-program1LedState", () => (int)_program1LedState);
-			Program2LedStateFeedback = new IntFeedback($"{key}-program2LedState", () => (int)_program2LedState);
-			Program3LedStateFeedback = new IntFeedback($"{key}-program3LedState", () => (int)_program3LedState);
-			SessionLedStateFeedback = new IntFeedback($"{key}-sessionLedState", () => (int)_sessionLedState);
-			BeepLedStateFeedback = new BoolFeedback($"{key}-beepLedState", () => _beepLedState);
-			BlinkLedStateFeedback = new BoolFeedback($"{key}-blinkLedState", () => _blinkLedState);
-			GreenLedStateFeedback = new BoolFeedback($"{key}-greenLedState", () => _greenLedState);
-			RedLedStateFeedback = new BoolFeedback($"{key}-redLedState", () => _redLedState);
-			YellowLedStateFeedback = new BoolFeedback($"{key}-yellowLedState", () => _yellowLedState);
-			SecondsModeIndicatorStateFeedback = new BoolFeedback($"{key}-secondsModeIndicatorState", () => _secondsModeIndicatorState);
-			TotalTimeFeedback = new StringFeedback($"{key}-totalTime", () => _totalTime);
-			SumUpTimeFeedback = new StringFeedback($"{key}-sumUpTime", () => _sumUpTime);
-			RemainingTimeFeedback = new StringFeedback($"{key}-remainingTime", () => _remainingTime);
+			Program1LedStateFeedback = new IntFeedback($"program1LedState", () => (int)_program1LedState);
+			Program2LedStateFeedback = new IntFeedback($"program2LedState", () => (int)_program2LedState);
+			Program3LedStateFeedback = new IntFeedback($"program3LedState", () => (int)_program3LedState);
+			SessionLedStateFeedback = new IntFeedback($"sessionLedState", () => (int)_sessionLedState);
+			BeepLedStateFeedback = new BoolFeedback($"beepLedState", () => _beepLedState);
+			BlinkLedStateFeedback = new BoolFeedback($"blinkLedState", () => _blinkLedState);
+			GreenLedStateFeedback = new BoolFeedback($"greenLedState", () => _greenLedState);
+			RedLedStateFeedback = new BoolFeedback($"redLedState", () => _redLedState);
+			YellowLedStateFeedback = new BoolFeedback($"yellowLedState", () => _yellowLedState);
+			SecondsModeIndicatorStateFeedback = new BoolFeedback($"secondsModeIndicatorState", () => _secondsModeIndicatorState);
+			TotalTimeFeedback = new StringFeedback($"totalTime", () => _totalTime);
+			SumUpTimeFeedback = new StringFeedback($"sumUpTime", () => _sumUpTime);
+			RemainingTimeFeedback = new StringFeedback($"remainingTime", () => _remainingTime);
 
-
-			// TODO [ ] comms will always be rs-232 - anything to do here?
-			var socket = _comms as ISocketStatus;
-			if (socket != null)
-			{
-				// device comms is IP **ELSE** device comms is RS232
-				socket.ConnectionChange += socket_ConnectionChange;
-				Connect = true;
-			}
 
 			#region Communication data event handlers.  Comment out any that don't apply to the API type
 
@@ -198,22 +309,20 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			#endregion
 		}
 
+        public override void Initialize()
+        {
+            base.Initialize();
 
-		private void socket_ConnectionChange(object sender, GenericSocketStatusChageEventArgs args)
+			_commsMonitor.Start();
+        }
+
+
+        /// <summary>
+        /// Poll method for the communication monitor - currently not used for this device
+        /// </summary>
+        private void Poll()
 		{
-			if (ConnectFeedback != null)
-				ConnectFeedback.FireUpdate();
-
-			if (StatusFeedback != null)
-				StatusFeedback.FireUpdate();
-		}
-
-		/// <summary>
-		/// Poll method for the communication monitor - currently not used for this device
-		/// </summary>
-		private void Poll()
-		{
-			// No polling needed for this device
+			
 		}
 
 		// TODO [ ] If not using an API with a delimeter, delete the method below
@@ -223,15 +332,10 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             ReceiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
-        // // TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
-        // void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
-        // {
-        //     // TODO [ ] Implement method 
-        // }
 
 		public void ProcessFeedbackMessage(string message)
 		{
-			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: {0}", message);
+            this.LogVerbose("Processing feedback message: {0}", message);
 			
 			if (string.IsNullOrEmpty(message))
 				return;
@@ -243,97 +347,137 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			{
 				// Program 1 LED states
 				case "P1LEDON":
-					Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: case-> P1LEDON  currentValue = {0}", _program1LedState);
+                    this.LogVerbose("Processing feedback message: case-> P1LEDON  currentValue = {0}", _program1LedState);
 					_program1LedState = LimitimerLedState.on;
-					Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "Processing feedback message: case-> P1LEDON  newValue = {0}", _program1LedState);
+                    Program1LedStateFeedback?.FireUpdate();
+                    this.LogVerbose("Processing feedback message: case-> P1LEDON  newValue = {0}", _program1LedState);
 					break;
 				case "P1LEDDM":
 					_program1LedState = LimitimerLedState.dim;
-					break;
+                    Program1LedStateFeedback?.FireUpdate();
+                    break;
 				case "P1LEDOF":
 					_program1LedState = LimitimerLedState.off;
-					break;
+                    Program1LedStateFeedback?.FireUpdate();
+                    break;
 
 				// Program 2 LED states
 				case "P2LEDON":
 					_program2LedState = LimitimerLedState.on;
-					break;
+                    Program2LedStateFeedback?.FireUpdate();
+
+                    break;
 				case "P2LEDDM":
 					_program2LedState = LimitimerLedState.dim;
-					break;
+                    Program2LedStateFeedback?.FireUpdate();
+
+                    break;
 				case "P2LEDOF":
 					_program2LedState = LimitimerLedState.off;
-					break;
+                    Program2LedStateFeedback?.FireUpdate();
+
+                    break;
 
 				// Program 3 LED states
 				case "P3LEDON":
 					_program3LedState = LimitimerLedState.on;
-					break;
+                    Program3LedStateFeedback?.FireUpdate();
+                    break;
 				case "P3LEDDM":
 					_program3LedState = LimitimerLedState.dim;
-					break;
+                    Program3LedStateFeedback?.FireUpdate();
+                    break;
 				case "P3LEDOF":
 					_program3LedState = LimitimerLedState.off;
-					break;
+                    Program3LedStateFeedback?.FireUpdate();
+                    break;
 
 				// Session LED states
 				case "SESLEDON":
 					_sessionLedState = LimitimerLedState.on;
-					break;
+                    SessionLedStateFeedback?.FireUpdate();
+
+                    break;
 				case "SESLEDDM":
 					_sessionLedState = LimitimerLedState.dim;
-					break;
+                    SessionLedStateFeedback?.FireUpdate();
+                    break;
 				case "SESLEDOF":
 					_sessionLedState = LimitimerLedState.off;
-					break;
+                    SessionLedStateFeedback?.FireUpdate();
+                    break;
 
 				// Beep LED states
 				case "BPLEDON":
 					_beepLedState = true;
-					break;
+                    BeepLedStateFeedback?.FireUpdate();
+
+                    break;
 				case "BPLEDOF":
 					_beepLedState = false;
-					break;
+                    BeepLedStateFeedback?.FireUpdate();
+
+                    break;
 
 				// Blink LED states
 				case "BKLEDON":
 					_blinkLedState = true;
-					break;
+                    BlinkLedStateFeedback?.FireUpdate();
+
+                    break;
 				case "BKLEDOF":
 					_blinkLedState = false;
-					break;
+                    BlinkLedStateFeedback?.FireUpdate();
+
+                    break;
 
 				// Green LED states
 				case "GRNLEDON":
 					_greenLedState = true;
-					break;
+                    GreenLedStateFeedback?.FireUpdate();
+
+                    break;
 				case "GRNLEDOF":
 					_greenLedState = false;
-					break;
+                    GreenLedStateFeedback?.FireUpdate();
+
+                    break;
 
 				// Yellow LED states
 				case "YELLEDON":
 					_yellowLedState = true;
-					break;
+                    YellowLedStateFeedback?.FireUpdate();
+
+                    break;
 				case "YELLEDOF":
 					_yellowLedState = false;
-					break;
+                    YellowLedStateFeedback?.FireUpdate();
+
+                    break;
 
 				// Red LED states
 				case "REDLEDON":
 					_redLedState = true;
-					break;
+                    RedLedStateFeedback?.FireUpdate();
+
+                    break;
 				case "REDLEDOF":
 					_redLedState = false;
-					break;
+                    RedLedStateFeedback?.FireUpdate();
+
+                    break;
 
 				// Seconds Mode Indicator states
 				case "SMON":
 					_secondsModeIndicatorState = true;
-					break;
+                    SecondsModeIndicatorStateFeedback?.FireUpdate();
+
+                    break;
 				case "SMOF":
 					_secondsModeIndicatorState = false;
-					break;
+                    SecondsModeIndicatorStateFeedback?.FireUpdate();
+
+                    break;
 
 				// Beep event
 				case "BEEP":
@@ -345,52 +489,31 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 					{
 						// Total Time String (format: TTSTR=MM:SS)
 						_totalTime = cleanMessage.Substring(6); // Remove "TTSTR=" prefix
-					}
-					else if (cleanMessage.StartsWith("STSTR="))
+                        TotalTimeFeedback?.FireUpdate();
+
+                    }
+                    else if (cleanMessage.StartsWith("STSTR="))
 					{
 						// Sum-Up Time String (format: STSTR=MM:SS)
 						_sumUpTime = cleanMessage.Substring(6); // Remove "STSTR=" prefix
-					}
+                        SumUpTimeFeedback?.FireUpdate();
+                    }
 					else if (cleanMessage.StartsWith("RTSTR="))
 					{
 						// Remaining Time String (format: RTSTR=MM:SS)
 						_remainingTime = cleanMessage.Substring(6); // Remove "RTSTR=" prefix
-					}
+                        RemainingTimeFeedback?.FireUpdate();
+                    }
 					else
 					{
-						Debug.LogMessage(Serilog.Events.LogEventLevel.Warning, this, "Unknown feedback message received: {0}", cleanMessage);
+						this.LogWarning("Unknown feedback message received: {0}", cleanMessage);
 					}
 					break;
 			}
 
-			// Trigger state change notification after processing any feedback
-			OnStateChanged();
         }
 
-		public event EventHandler StateChanged;
 		public event EventHandler BeepEvent;
-
-		private void OnStateChanged()
-		{
-			Debug.LogMessage(Serilog.Events.LogEventLevel.Information, this, "OnStateChanged");
-			// Fire individual feedback updates - this enables targeted messaging in the messenger
-			Program1LedStateFeedback?.FireUpdate();
-			Program2LedStateFeedback?.FireUpdate();
-			Program3LedStateFeedback?.FireUpdate();
-			SessionLedStateFeedback?.FireUpdate();
-			BeepLedStateFeedback?.FireUpdate();
-			BlinkLedStateFeedback?.FireUpdate();
-			GreenLedStateFeedback?.FireUpdate();
-			RedLedStateFeedback?.FireUpdate();
-			YellowLedStateFeedback?.FireUpdate();
-			SecondsModeIndicatorStateFeedback?.FireUpdate();
-			TotalTimeFeedback?.FireUpdate();
-			SumUpTimeFeedback?.FireUpdate();
-			RemainingTimeFeedback?.FireUpdate();
-
-			// Keep the general StateChanged event for backward compatibility
-			StateChanged?.Invoke(this, EventArgs.Empty);
-		}
 
 		private void OnBeepEvent()
 		{

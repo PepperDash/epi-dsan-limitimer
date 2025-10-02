@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PepperDash.Essentials.AppServer.Messengers;
 using PepperDash.Core;
+using PepperDash.Core.Logging;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
@@ -57,8 +58,8 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         private void SendLedUpdate(string propertyName, LimitimerLedState state)
         {
-            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendLedUpdate: propertyName={0}", propertyName);
-            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendLedUpdate: state={0}", state);
+            this.LogVerbose("SendLedUpdate: propertyName={0}", propertyName);
+            this.LogVerbose("SendLedUpdate: state={0}", state);
             var updateObject = new JObject();
             updateObject[propertyName] = JToken.FromObject(state);
             PostStatusMessage(updateObject);
@@ -69,7 +70,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             var updateObject = new JObject();
             updateObject[propertyName] = value;
             PostStatusMessage(updateObject);
-            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendBoolUpdate: object={0}", updateObject);
+            this.LogVerbose("SendBoolUpdate: object={0}", updateObject);
         }
 
         private void SendTimeUpdate(string propertyName, string timeValue)
@@ -77,7 +78,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             var updateObject = new JObject();
             updateObject[propertyName] = timeValue;
             PostStatusMessage(updateObject);
-            Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "SendTimeUpdate: object={0}", updateObject);
+            this.LogVerbose("SendTimeUpdate: object={0}", updateObject);
         }
 
         private void OnDeviceBeepEvent(object sender, EventArgs e)
@@ -217,15 +218,19 @@ namespace PepperDash.Essentials.Plugins.Limitimer
     public class LimitimerStateMessage : DeviceStateMessageBase
     {
         [JsonProperty("program1LedState")]
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public LimitimerLedState Program1LedState { get; set; }
 
         [JsonProperty("program2LedState")]
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public LimitimerLedState Program2LedState { get; set; }
 
         [JsonProperty("program3LedState")]
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public LimitimerLedState Program3LedState { get; set; }
 
         [JsonProperty("sessionLedState")]
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public LimitimerLedState SessionLedState { get; set; }
 
         [JsonProperty("beepLedState")]
@@ -269,8 +274,8 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
     public enum LimitimerLedState
     {
-        off,
-        on,
-        dim
+        off = 0,
+        on = 1,
+        dim = 2
     }
 }

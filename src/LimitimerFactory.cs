@@ -26,7 +26,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 var comms = CommFactory.CreateCommForDevice(dc);
                 if (comms == null)
                 {
-                    Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "[{0}] Factory Notice: No control object present for device {1}", dc.Key, dc.Name);
+                    Debug.LogMessage(Serilog.Events.LogEventLevel.Warning, "[{0}] Factory Notice: No control object present for device {1}", dc.Key, dc.Name);
                     return null;
                 }
 
@@ -34,7 +34,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 var config = dc.Properties.ToObject<LimitimerPropertiesConfig>();
                 if (config == null)
                 {
-                    Debug.LogMessage(Serilog.Events.LogEventLevel.Information, "[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);
+                    Debug.LogMessage(Serilog.Events.LogEventLevel.Warning, "[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);
                     return null;
                 }
 
