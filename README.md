@@ -58,3 +58,96 @@ In the solution folder is a file named "PDT.EssentialsPluginTemplate.nuspec"
 There is no longer a requirement to adjust workflow files for nuget generation for private and public repositories.  This is now handled automatically in the workflow.
 
 __If you do not make these changes to the nuspec file, the project will not generate a nuget package__
+<!-- START Minimum Essentials Framework Versions -->
+### Minimum Essentials Framework Versions
+
+- 2.8.0
+<!-- END Minimum Essentials Framework Versions -->
+<!-- START Config Example -->
+### Config Example
+
+```json
+{
+    "key": "GeneratedKey",
+    "uid": 1,
+    "name": "GeneratedName",
+    "type": "limitimer",
+    "group": "Group",
+    "properties": {
+        "control": "SampleValue",
+        "pollTimeMs": 0,
+        "warningTimeoutMs": 0,
+        "errorTimeoutMs": 0
+    }
+}
+```
+<!-- END Config Example -->
+<!-- START Supported Types -->
+### Supported Types
+
+- limitimer
+<!-- END Supported Types -->
+<!-- START Join Maps -->
+
+<!-- END Join Maps -->
+<!-- START Interfaces Implemented -->
+### Interfaces Implemented
+
+- IOnline
+- ICommunicationMonitor
+<!-- END Interfaces Implemented -->
+<!-- START Base Classes -->
+### Base Classes
+
+- EssentialsDevice
+- JoinMapBaseAdvanced
+- MessengerBase
+<!-- END Base Classes -->
+<!-- START Public Methods -->
+### Public Methods
+
+- public void ProcessFeedbackMessage(string message)
+- public void SendText(string text)
+- public void Program1()
+- public void Program2()
+- public void Program3()
+- public void Session4()
+- public void Beep()
+- public void Beep1()
+- public void Blink()
+- public void StartStop()
+- public void Repeat()
+- public void Clear()
+- public void TotalTimePlus()
+- public void TotalTimeMinus()
+- public void SumTimePlus()
+- public void SumTimeMinus()
+- public void SetSeconds()
+<!-- END Public Methods -->
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- IsOnline
+- BeepLedStateFeedback
+- BlinkLedStateFeedback
+- GreenLedStateFeedback
+- RedLedStateFeedback
+- YellowLedStateFeedback
+- SecondsModeIndicatorStateFeedback
+<!-- END Bool Feedbacks -->
+<!-- START Int Feedbacks -->
+### Int Feedbacks
+
+- StatusFeedback
+- Program1LedStateFeedback
+- Program2LedStateFeedback
+- Program3LedStateFeedback
+- SessionLedStateFeedback
+<!-- END Int Feedbacks -->
+<!-- START String Feedbacks -->
+### String Feedbacks
+
+- TotalTimeFeedback
+- SumUpTimeFeedback
+- RemainingTimeFeedback
+<!-- END String Feedbacks -->
