@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Linq;
+using Crestron.SimplSharpPro.DeviceSupport;
 using PepperDash.Core;
 using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
+using PepperDash.Essentials.Core.Bridges;
 using PepperDash.Essentials.Core.DeviceTypeInterfaces;
 using PepperDash.Essentials.Core.Queues;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
-	public class LimitimerDevice : EssentialsDevice, IOnline, ICommunicationMonitor
+	public class LimitimerDevice : EssentialsDevice, IOnline, ICommunicationMonitor, IBridgeAdvanced
     {
 		// private EssentialsPluginTemplateConfigObject _config;
 
@@ -648,8 +650,8 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         #endregion
 
 
-        #region Overrides of EssentialsBridgeableDevice
-/*
+        #region Simpl Bridging
+
         /// <summary>
         /// Links the plugin device to the EISC bridge
         /// </summary>
@@ -657,15 +659,12 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         /// <param name="joinStart"></param>
         /// <param name="joinMapKey"></param>
         /// <param name="bridge"></param>
-        public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+        public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
-            var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
+            var joinMap = new LimitimerBridgeJoinMap(joinStart);
 
             // This adds the join map to the collection on the bridge
-            if (bridge != null)
-            {
-                bridge.AddJoinMap(Key, joinMap);
-            }
+            bridge?.AddJoinMap(Key, joinMap);
 
             var customJoins = JoinMapHelper.TryGetJoinMapAdvancedForDevice(joinMapKey);
 
@@ -674,19 +673,83 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 joinMap.SetCustomJoinData(customJoins);
             }
 
-            Debug.Console(1, "Linking to Trilist '{0}'", trilist.ID.ToString("X"));
-            Debug.Console(0, "Linking to Bridge Type {0}", GetType().Name);
+            this.LogVerbose("Linking to Trilist '{0}'", trilist.ID.ToString("X"));
+            this.LogVerbose("Linking to Bridge Type {0}", GetType().Name);
 
-            // TODO [ ] Implement bridge links as needed
+            // Digital joins - ToSIMPL Feedbacks
+            IsOnline.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
 
-            // links to bridge
-            trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
+            // Digital joins - Program/Session Press and LED Feedbacks
+            trilist.SetBoolSigAction(joinMap.Program1.JoinNumber, b => { if (b) Program1(); });
+            trilist.SetBoolSigAction(joinMap.Program2.JoinNumber, b => { if (b) Program2(); });
+            trilist.SetBoolSigAction(joinMap.Program3.JoinNumber, b => { if (b) Program3(); });
+            trilist.SetBoolSigAction(joinMap.Session.JoinNumber, b => { if (b) Session4(); });
 
-            trilist.SetBoolSigAction(joinMap.Connect.JoinNumber, sig => Connect = sig);
-            ConnectFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Connect.JoinNumber]);
+            // Link LED On/Dim feedbacks for Program 1
+            Program1LedStateFeedback.OutputChange += (o, a) =>
+            {
+                trilist.SetBool(joinMap.Program1.JoinNumber, Program1LedState == LimitimerLedState.on);
+                trilist.SetBool(joinMap.Program1LedDim.JoinNumber, Program1LedState == LimitimerLedState.dim);
+            };
 
+            // Link LED On/Dim feedbacks for Program 2
+            Program2LedStateFeedback.OutputChange += (o, a) =>
+            {
+                trilist.SetBool(joinMap.Program2.JoinNumber, Program2LedState == LimitimerLedState.on);
+                trilist.SetBool(joinMap.Program2LedDim.JoinNumber, Program2LedState == LimitimerLedState.dim);
+            };
+
+            // Link LED On/Dim feedbacks for Program 3
+            Program3LedStateFeedback.OutputChange += (o, a) =>
+            {
+                trilist.SetBool(joinMap.Program3.JoinNumber, Program3LedState == LimitimerLedState.on);
+                trilist.SetBool(joinMap.Program3LedDim.JoinNumber, Program3LedState == LimitimerLedState.dim);
+            };
+
+            // Link LED On/Dim feedbacks for Session
+            SessionLedStateFeedback.OutputChange += (o, a) =>
+            {
+                trilist.SetBool(joinMap.Session.JoinNumber, SessionLedState == LimitimerLedState.on);
+                trilist.SetBool(joinMap.SessionLedDim.JoinNumber, SessionLedState == LimitimerLedState.dim);
+            };
+
+            // Digital joins - Beep/Blink Press and LED Feedbacks
+            trilist.SetBoolSigAction(joinMap.Beep.JoinNumber, b => { if (b) Beep(); });
+            BeepLedStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Beep.JoinNumber]);
+
+            trilist.SetBoolSigAction(joinMap.Blink.JoinNumber, b => { if (b) Blink(); });
+            BlinkLedStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Blink.JoinNumber]);
+
+            // Digital joins - Seconds Mode Press and Feedback
+            trilist.SetBoolSigAction(joinMap.SecondsMode.JoinNumber, b => { if (b) SetSeconds(); });
+            SecondsModeIndicatorStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SecondsMode.JoinNumber]);
+
+            // Digital joins - Color LED Feedbacks (ToSIMPL only)
+            GreenLedStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.GreenLed.JoinNumber]);
+            RedLedStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.RedLed.JoinNumber]);
+            YellowLedStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.YellowLed.JoinNumber]);
+
+            // Digital joins - Control Presses (FromSIMPL only)
+            trilist.SetBoolSigAction(joinMap.StartStop.JoinNumber, b => { if (b) StartStop(); });
+            trilist.SetBoolSigAction(joinMap.Repeat.JoinNumber, b => { if (b) Repeat(); });
+            trilist.SetBoolSigAction(joinMap.Clear.JoinNumber, b => { if (b) Clear(); });
+            trilist.SetBoolSigAction(joinMap.TotalTimePlus.JoinNumber, b => { if (b) TotalTimePlus(); });
+            trilist.SetBoolSigAction(joinMap.TotalTimeMinus.JoinNumber, b => { if (b) TotalTimeMinus(); });
+            trilist.SetBoolSigAction(joinMap.SumTimePlus.JoinNumber, b => { if (b) SumTimePlus(); });
+            trilist.SetBoolSigAction(joinMap.SumTimeMinus.JoinNumber, b => { if (b) SumTimeMinus(); });
+
+            // Analog joins - Status and LED States
             StatusFeedback.LinkInputSig(trilist.UShortInput[joinMap.Status.JoinNumber]);
-            OnlineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
+            Program1LedStateFeedback.LinkInputSig(trilist.UShortInput[joinMap.Program1LedState.JoinNumber]);
+            Program2LedStateFeedback.LinkInputSig(trilist.UShortInput[joinMap.Program2LedState.JoinNumber]);
+            Program3LedStateFeedback.LinkInputSig(trilist.UShortInput[joinMap.Program3LedState.JoinNumber]);
+            SessionLedStateFeedback.LinkInputSig(trilist.UShortInput[joinMap.SessionLedState.JoinNumber]);
+
+            // Serial joins - Device Name and Time Strings
+            trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
+            TotalTimeFeedback.LinkInputSig(trilist.StringInput[joinMap.TotalTime.JoinNumber]);
+            SumUpTimeFeedback.LinkInputSig(trilist.StringInput[joinMap.SumUpTime.JoinNumber]);
+            RemainingTimeFeedback.LinkInputSig(trilist.StringInput[joinMap.RemainingTime.JoinNumber]);
 
             UpdateFeedbacks();
 
@@ -701,12 +764,26 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         private void UpdateFeedbacks()
         {
-            // TODO [ ] Update as needed for the plugin being developed
-            ConnectFeedback.FireUpdate();
-            OnlineFeedback.FireUpdate();
-            StatusFeedback.FireUpdate();
+            IsOnline?.FireUpdate();
+            StatusFeedback?.FireUpdate();
+            
+            Program1LedStateFeedback?.FireUpdate();
+            Program2LedStateFeedback?.FireUpdate();
+            Program3LedStateFeedback?.FireUpdate();
+            SessionLedStateFeedback?.FireUpdate();
+            
+            BeepLedStateFeedback?.FireUpdate();
+            BlinkLedStateFeedback?.FireUpdate();
+            GreenLedStateFeedback?.FireUpdate();
+            RedLedStateFeedback?.FireUpdate();
+            YellowLedStateFeedback?.FireUpdate();
+            SecondsModeIndicatorStateFeedback?.FireUpdate();
+            
+            TotalTimeFeedback?.FireUpdate();
+            SumUpTimeFeedback?.FireUpdate();
+            RemainingTimeFeedback?.FireUpdate();
         }
- */
+
         #endregion
 
     }
