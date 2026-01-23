@@ -10,7 +10,7 @@ using PepperDash.Essentials.Core.Queues;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
-	public class LimitimerDevice : EssentialsDevice, IOnline, ICommunicationMonitor, IBridgeAdvanced
+	public class LimitimerDevice : EssentialsBridgeableDevice, IOnline, ICommunicationMonitor
     {
 		// private EssentialsPluginTemplateConfigObject _config;
 
@@ -659,7 +659,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         /// <param name="joinStart"></param>
         /// <param name="joinMapKey"></param>
         /// <param name="bridge"></param>
-        public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+        public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
             var joinMap = new LimitimerBridgeJoinMap(joinStart);
 
@@ -680,10 +680,10 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             IsOnline.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
 
             // Digital joins - Program/Session Press and LED Feedbacks
-            trilist.SetBoolSigAction(joinMap.Program1.JoinNumber, b => { if (b) Program1(); });
-            trilist.SetBoolSigAction(joinMap.Program2.JoinNumber, b => { if (b) Program2(); });
-            trilist.SetBoolSigAction(joinMap.Program3.JoinNumber, b => { if (b) Program3(); });
-            trilist.SetBoolSigAction(joinMap.Session.JoinNumber, b => { if (b) Session4(); });
+            trilist.SetSigTrueAction(joinMap.Program1.JoinNumber, () => Program1());
+            trilist.SetSigTrueAction(joinMap.Program2.JoinNumber, () => Program2());
+            trilist.SetSigTrueAction(joinMap.Program3.JoinNumber, () => Program3());
+            trilist.SetSigTrueAction(joinMap.Session.JoinNumber, () => Session4());
 
             // Link LED On/Dim feedbacks for Program 1
             Program1LedStateFeedback.OutputChange += (o, a) =>
@@ -730,13 +730,13 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             YellowLedStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.YellowLed.JoinNumber]);
 
             // Digital joins - Control Presses (FromSIMPL only)
-            trilist.SetBoolSigAction(joinMap.StartStop.JoinNumber, b => { if (b) StartStop(); });
-            trilist.SetBoolSigAction(joinMap.Repeat.JoinNumber, b => { if (b) Repeat(); });
-            trilist.SetBoolSigAction(joinMap.Clear.JoinNumber, b => { if (b) Clear(); });
-            trilist.SetBoolSigAction(joinMap.TotalTimePlus.JoinNumber, b => { if (b) TotalTimePlus(); });
-            trilist.SetBoolSigAction(joinMap.TotalTimeMinus.JoinNumber, b => { if (b) TotalTimeMinus(); });
-            trilist.SetBoolSigAction(joinMap.SumTimePlus.JoinNumber, b => { if (b) SumTimePlus(); });
-            trilist.SetBoolSigAction(joinMap.SumTimeMinus.JoinNumber, b => { if (b) SumTimeMinus(); });
+            trilist.SetSigTrueAction(joinMap.StartStop.JoinNumber, () => StartStop());
+            trilist.SetSigTrueAction(joinMap.Repeat.JoinNumber, () => Repeat());
+            trilist.SetSigTrueAction(joinMap.Clear.JoinNumber, () => Clear());
+            trilist.SetSigTrueAction(joinMap.TotalTimePlus.JoinNumber, () => TotalTimePlus());
+            trilist.SetSigTrueAction(joinMap.TotalTimeMinus.JoinNumber, () => TotalTimeMinus());
+            trilist.SetSigTrueAction(joinMap.SumTimePlus.JoinNumber, () => SumTimePlus());
+            trilist.SetSigTrueAction(joinMap.SumTimeMinus.JoinNumber, () => SumTimeMinus());
 
             // Analog joins - Status and LED States
             StatusFeedback.LinkInputSig(trilist.UShortInput[joinMap.Status.JoinNumber]);
