@@ -345,9 +345,11 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			// Remove delimiter and trim whitespace
 			var cleanMessage = message.Replace(CommsDelimiter, "").Trim();
 
-            // split the string on the space and only take the command portion (before the space/checksum)
-            var commandPart = cleanMessage.Split(' ')[0];
-            
+            // search the string to find the last space from the end
+            var lastSpaceIndex = cleanMessage.LastIndexOf(' ');
+
+            // If a space was found, extract the command part before the last space
+            var commandPart = lastSpaceIndex >= 0 ? cleanMessage.Substring(0, lastSpaceIndex) : cleanMessage;
 
 			switch (commandPart)
 			{
