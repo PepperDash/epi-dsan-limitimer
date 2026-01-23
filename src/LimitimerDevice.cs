@@ -327,7 +327,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			
 		}
 
-		// TODO [ ] If not using an API with a delimeter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
             // Enqueues the message to be processed in a dedicated thread, but the specified method
