@@ -10,7 +10,7 @@ using PepperDash.Essentials.Core.Queues;
 
 namespace PepperDash.Essentials.Plugins.Limitimer
 {
-	public class LimitimerDevice : EssentialsDevice, IOnline, ICommunicationMonitor, IBridgeAdvanced
+	public class LimitimerDevice : EssentialsBridgeableDevice, IOnline, ICommunicationMonitor
     {
 		// private EssentialsPluginTemplateConfigObject _config;
 
@@ -327,7 +327,6 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			
 		}
 
-		// TODO [ ] If not using an API with a delimeter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
             // Enqueues the message to be processed in a dedicated thread, but the specified method
@@ -345,7 +344,19 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			// Remove delimiter and trim whitespace
 			var cleanMessage = message.Replace(CommsDelimiter, "").Trim();
 
-			switch (cleanMessage)
+            // remove teh > at the start if present
+            if (cleanMessage.StartsWith(">"))
+            {
+                cleanMessage = cleanMessage.Substring(1);
+            }
+
+            // search the string to find the last space from the end
+            var lastSpaceIndex = cleanMessage.LastIndexOf(' ');
+
+            // If a space was found, extract the command part before the last space
+            var commandPart = lastSpaceIndex >= 0 ? cleanMessage.Substring(0, lastSpaceIndex) : cleanMessage;
+
+			switch (commandPart)
 			{
 				// Program 1 LED states
 				case "P1LEDON":
@@ -487,28 +498,28 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 					break;
 
 				default:
-					if (cleanMessage.StartsWith("TTSTR="))
+					if (commandPart.StartsWith("TTSTR="))
 					{
 						// Total Time String (format: TTSTR=MM:SS)
-						_totalTime = cleanMessage.Substring(6); // Remove "TTSTR=" prefix
+						_totalTime = commandPart.Substring(6); // Remove "TTSTR=" prefix
                         TotalTimeFeedback?.FireUpdate();
 
                     }
-                    else if (cleanMessage.StartsWith("STSTR="))
+                    else if (commandPart.StartsWith("STSTR="))
 					{
 						// Sum-Up Time String (format: STSTR=MM:SS)
-						_sumUpTime = cleanMessage.Substring(6); // Remove "STSTR=" prefix
+						_sumUpTime = commandPart.Substring(6); // Remove "STSTR=" prefix
                         SumUpTimeFeedback?.FireUpdate();
                     }
-					else if (cleanMessage.StartsWith("RTSTR="))
+					else if (commandPart.StartsWith("RTSTR="))
 					{
 						// Remaining Time String (format: RTSTR=MM:SS)
-						_remainingTime = cleanMessage.Substring(6); // Remove "RTSTR=" prefix
+						_remainingTime = commandPart.Substring(6); // Remove "RTSTR=" prefix
                         RemainingTimeFeedback?.FireUpdate();
                     }
 					else
 					{
-						this.LogWarning("Unknown feedback message received: {0}", cleanMessage);
+						this.LogWarning("Unknown feedback message received: {0}", commandPart);
 					}
 					break;
 			}
@@ -659,7 +670,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
         /// <param name="joinStart"></param>
         /// <param name="joinMapKey"></param>
         /// <param name="bridge"></param>
-        public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+        public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
             var joinMap = new LimitimerBridgeJoinMap(joinStart);
 
@@ -680,10 +691,10 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             IsOnline.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
 
             // Digital joins - Program/Session Press and LED Feedbacks
-            trilist.SetBoolSigAction(joinMap.Program1.JoinNumber, b => { if (b) Program1(); });
-            trilist.SetBoolSigAction(joinMap.Program2.JoinNumber, b => { if (b) Program2(); });
-            trilist.SetBoolSigAction(joinMap.Program3.JoinNumber, b => { if (b) Program3(); });
-            trilist.SetBoolSigAction(joinMap.Session.JoinNumber, b => { if (b) Session4(); });
+            trilist.SetSigTrueAction(joinMap.Program1.JoinNumber, () => Program1());
+            trilist.SetSigTrueAction(joinMap.Program2.JoinNumber, () => Program2());
+            trilist.SetSigTrueAction(joinMap.Program3.JoinNumber, () => Program3());
+            trilist.SetSigTrueAction(joinMap.Session.JoinNumber, () => Session4());
 
             // Link LED On/Dim feedbacks for Program 1
             Program1LedStateFeedback.OutputChange += (o, a) =>
@@ -730,13 +741,13 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             YellowLedStateFeedback.LinkInputSig(trilist.BooleanInput[joinMap.YellowLed.JoinNumber]);
 
             // Digital joins - Control Presses (FromSIMPL only)
-            trilist.SetBoolSigAction(joinMap.StartStop.JoinNumber, b => { if (b) StartStop(); });
-            trilist.SetBoolSigAction(joinMap.Repeat.JoinNumber, b => { if (b) Repeat(); });
-            trilist.SetBoolSigAction(joinMap.Clear.JoinNumber, b => { if (b) Clear(); });
-            trilist.SetBoolSigAction(joinMap.TotalTimePlus.JoinNumber, b => { if (b) TotalTimePlus(); });
-            trilist.SetBoolSigAction(joinMap.TotalTimeMinus.JoinNumber, b => { if (b) TotalTimeMinus(); });
-            trilist.SetBoolSigAction(joinMap.SumTimePlus.JoinNumber, b => { if (b) SumTimePlus(); });
-            trilist.SetBoolSigAction(joinMap.SumTimeMinus.JoinNumber, b => { if (b) SumTimeMinus(); });
+            trilist.SetSigTrueAction(joinMap.StartStop.JoinNumber, () => StartStop());
+            trilist.SetSigTrueAction(joinMap.Repeat.JoinNumber, () => Repeat());
+            trilist.SetSigTrueAction(joinMap.Clear.JoinNumber, () => Clear());
+            trilist.SetSigTrueAction(joinMap.TotalTimePlus.JoinNumber, () => TotalTimePlus());
+            trilist.SetSigTrueAction(joinMap.TotalTimeMinus.JoinNumber, () => TotalTimeMinus());
+            trilist.SetSigTrueAction(joinMap.SumTimePlus.JoinNumber, () => SumTimePlus());
+            trilist.SetSigTrueAction(joinMap.SumTimeMinus.JoinNumber, () => SumTimeMinus());
 
             // Analog joins - Status and LED States
             StatusFeedback.LinkInputSig(trilist.UShortInput[joinMap.Status.JoinNumber]);
