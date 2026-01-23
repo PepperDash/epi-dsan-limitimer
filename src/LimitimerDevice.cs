@@ -517,6 +517,12 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 						_remainingTime = commandPart.Substring(6); // Remove "RTSTR=" prefix
                         RemainingTimeFeedback?.FireUpdate();
                     }
+					else if (commandPart.StartsWith("RTSTRSZ="))
+					{
+						// Remaining Time String (format: RTSTRSZ=MM:SS)
+						//_remainingTime = commandPart.Substring(6); // Remove "RTSTR=" prefix
+                        //RemainingTimeFeedback?.FireUpdate();
+                    }
 					else
 					{
 						this.LogWarning("Unknown feedback message received: {0}", commandPart);
