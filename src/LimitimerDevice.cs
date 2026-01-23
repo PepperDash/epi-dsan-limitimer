@@ -344,6 +344,12 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			// Remove delimiter and trim whitespace
 			var cleanMessage = message.Replace(CommsDelimiter, "").Trim();
 
+            // remove teh > at the start if present
+            if (cleanMessage.StartsWith(">"))
+            {
+                cleanMessage = cleanMessage.Substring(1);
+            }
+
             // search the string to find the last space from the end
             var lastSpaceIndex = cleanMessage.LastIndexOf(' ');
 
