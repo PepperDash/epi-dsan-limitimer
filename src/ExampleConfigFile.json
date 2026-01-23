@@ -1,0 +1,54 @@
+{
+  "template": {
+    "info": {
+      "systemType": "custom",
+      "requiredControlSofwareVersion": "",
+      "comment": "",
+      "lastUid": 10,
+      "processorType": "cp4",
+      "lastModifiedDate": "2025-03-10T12:00:00.768Z"
+    },
+    "devices": [
+      {
+        "type": "cp4",
+        "name": "CP4",
+        "group": "processor",
+        "supportedConfigModes": ["compliance", "essentials"],
+        "supportedSystemTypes": ["hudType", "presType", "vtcType", "custom"],
+        "supportsCompliance": true,
+        "properties": {
+          "numberOfComPorts": 3,
+          "numberOfDIOPorts": 8,
+          "numberOfIrPorts": 8,
+          "numberOfRelays": 8
+        },
+        "key": "processor"
+      },
+      {
+        "key": "limitimer-1",
+        "name": "DSAN Limitimer",
+        "type": "limitimer", 
+        "group": "timers",
+          "properties": {
+            "control": {
+              "comParams": {
+                "dataBits": 8,
+                "softwareHandshake": "None",
+                "baudRate": 9600,
+                "parity": "None",
+                "stopBits": 1,
+                "hardwareHandshake": "None",
+                "protocol": "RS232"
+              },
+              "method": "com",
+              "controlPortDevKey": "nvx-rx-27",
+              "controlPortNumber": 1
+            },
+            "pollTimeMs": 5000,
+            "warningTimeoutMs": 45000,
+            "errorTimeoutMs": 90000
+          }
+      } 
+    ]
+  }
+}
