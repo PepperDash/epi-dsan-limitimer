@@ -345,7 +345,11 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			// Remove delimiter and trim whitespace
 			var cleanMessage = message.Replace(CommsDelimiter, "").Trim();
 
-			switch (cleanMessage)
+            // split the string on the space and only take the command portion (before the space/checksum)
+            var commandPart = cleanMessage.Split(' ')[0];
+            
+
+			switch (commandPart)
 			{
 				// Program 1 LED states
 				case "P1LEDON":
@@ -487,28 +491,28 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 					break;
 
 				default:
-					if (cleanMessage.StartsWith("TTSTR="))
+					if (commandPart.StartsWith("TTSTR="))
 					{
 						// Total Time String (format: TTSTR=MM:SS)
-						_totalTime = cleanMessage.Substring(6); // Remove "TTSTR=" prefix
+						_totalTime = commandPart.Substring(6); // Remove "TTSTR=" prefix
                         TotalTimeFeedback?.FireUpdate();
 
                     }
-                    else if (cleanMessage.StartsWith("STSTR="))
+                    else if (commandPart.StartsWith("STSTR="))
 					{
 						// Sum-Up Time String (format: STSTR=MM:SS)
-						_sumUpTime = cleanMessage.Substring(6); // Remove "STSTR=" prefix
+						_sumUpTime = commandPart.Substring(6); // Remove "STSTR=" prefix
                         SumUpTimeFeedback?.FireUpdate();
                     }
-					else if (cleanMessage.StartsWith("RTSTR="))
+					else if (commandPart.StartsWith("RTSTR="))
 					{
 						// Remaining Time String (format: RTSTR=MM:SS)
-						_remainingTime = cleanMessage.Substring(6); // Remove "RTSTR=" prefix
+						_remainingTime = commandPart.Substring(6); // Remove "RTSTR=" prefix
                         RemainingTimeFeedback?.FireUpdate();
                     }
 					else
 					{
-						this.LogWarning("Unknown feedback message received: {0}", cleanMessage);
+						this.LogWarning("Unknown feedback message received: {0}", commandPart);
 					}
 					break;
 			}
