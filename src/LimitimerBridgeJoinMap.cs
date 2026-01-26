@@ -462,6 +462,20 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 				JoinType = eJoinType.Serial
 			});
 
+		[JoinName("RemainingTimeSZ")]
+		public JoinDataComplete RemainingTimeSZ = new JoinDataComplete(
+			new JoinData
+			{
+				JoinNumber = 5,
+				JoinSpan = 1
+			},
+			new JoinMetadata
+			{
+				Description = "Remaining Time String (MM:SS format)",
+				JoinCapabilities = eJoinCapabilities.ToSIMPL,
+				JoinType = eJoinType.Serial
+			});
+
 		#endregion
 
 		/// <summary>

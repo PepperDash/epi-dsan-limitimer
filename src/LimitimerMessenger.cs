@@ -54,6 +54,8 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 SendTimeUpdate("sumUpTime", _limitimerDevice.SumUpTime);
             _limitimerDevice.RemainingTimeFeedback.OutputChange += (o, a) => 
                 SendTimeUpdate("remainingTime", _limitimerDevice.RemainingTime);
+            _limitimerDevice.RemainingTimeSZFeedback.OutputChange += (o, a) => 
+                SendTimeUpdate("remainingTimeSZ", _limitimerDevice.RemainingTimeSZ);
         }
 
         private void SendLedUpdate(string propertyName, LimitimerLedState state)
@@ -103,7 +105,8 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                 SecondsModeIndicatorState = _limitimerDevice.SecondsModeIndicatorState,
                 TotalTime = _limitimerDevice.TotalTime,
                 SumUpTime = _limitimerDevice.SumUpTime,
-                RemainingTime = _limitimerDevice.RemainingTime
+                RemainingTime = _limitimerDevice.RemainingTime,
+                RemainingTimeSZ = _limitimerDevice.RemainingTimeSZ
             }, id);
         }
 
@@ -261,6 +264,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         [JsonProperty("remainingTime")]
         public string RemainingTime { get; set; }
+
+        [JsonProperty("remainingTimeSZ")]
+        public string RemainingTimeSZ { get; set; }
 
 
 

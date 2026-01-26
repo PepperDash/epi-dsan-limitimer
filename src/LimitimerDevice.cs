@@ -48,6 +48,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		private string _totalTime;
 		private string _sumUpTime;
 		private string _remainingTime;
+		private string _remainingTimeSZ;
 
 		#endregion
 
@@ -74,6 +75,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 		public StringFeedback TotalTimeFeedback { get; private set; }
 		public StringFeedback SumUpTimeFeedback { get; private set; }
 		public StringFeedback RemainingTimeFeedback { get; private set; }
+		public StringFeedback RemainingTimeSZFeedback { get; private set; }
 
 		#endregion
 
@@ -239,6 +241,19 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             }
         }
 
+        public string RemainingTimeSZ
+        {
+            get { return _remainingTimeSZ; }
+            set
+            {
+                if (_remainingTimeSZ != value)
+                {
+                    _remainingTimeSZ = value;
+                    RemainingTimeSZFeedback?.FireUpdate();
+                }
+            }
+        }
+
         #endregion
 
         protected override void CreateMobileControlMessengers()
@@ -277,6 +292,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			_totalTime = "00:00";
 			_sumUpTime = "00:00";
 			_remainingTime = "00:00";
+			_remainingTimeSZ = "00:00";
 
 			ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
 
@@ -300,7 +316,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			TotalTimeFeedback = new StringFeedback($"totalTime", () => _totalTime);
 			SumUpTimeFeedback = new StringFeedback($"sumUpTime", () => _sumUpTime);
 			RemainingTimeFeedback = new StringFeedback($"remainingTime", () => _remainingTime);
-
+			RemainingTimeSZFeedback = new StringFeedback($"remainingTimeSZ", () => _remainingTimeSZ);
 
 			#region Communication data event handlers.  Comment out any that don't apply to the API type
 
@@ -519,9 +535,9 @@ namespace PepperDash.Essentials.Plugins.Limitimer
                     }
 					else if (commandPart.StartsWith("RTSTRSZ="))
 					{
-						// Remaining Time String (format: RTSTRSZ=MM:SS)
-						//_remainingTime = commandPart.Substring(6); // Remove "RTSTR=" prefix
-                        //RemainingTimeFeedback?.FireUpdate();
+						// Remaining Time String Stop at Zero (format: RTSTRSZ=MM:SS)
+						_remainingTimeSZ = commandPart.Substring(8); // Remove "RTSTRSZ=" prefix
+                        RemainingTimeSZFeedback?.FireUpdate();
                     }
 					else
 					{
@@ -767,6 +783,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             TotalTimeFeedback.LinkInputSig(trilist.StringInput[joinMap.TotalTime.JoinNumber]);
             SumUpTimeFeedback.LinkInputSig(trilist.StringInput[joinMap.SumUpTime.JoinNumber]);
             RemainingTimeFeedback.LinkInputSig(trilist.StringInput[joinMap.RemainingTime.JoinNumber]);
+            RemainingTimeSZFeedback.LinkInputSig(trilist.StringInput[joinMap.RemainingTimeSZ.JoinNumber]);
 
             UpdateFeedbacks();
 
@@ -799,6 +816,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
             TotalTimeFeedback?.FireUpdate();
             SumUpTimeFeedback?.FireUpdate();
             RemainingTimeFeedback?.FireUpdate();
+            RemainingTimeSZFeedback?.FireUpdate();
         }
 
         #endregion
