@@ -64,24 +64,31 @@ jobs:
           sudo apt update
           sudo apt install gh -y
 
-      - name: Authenticate GitHub CLI
+      - name: Fetch prompt from PepperDash/.github
+        id: fetch_prompt
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "$GH_TOKEN" | gh auth login --with-token
-
-      - name: Check for prompt file
-        id: check_prompt
-        run: |
+          mkdir -p .github/copilot-prompts
+          gh repo clone PepperDash/.github -- --depth 1 --filter=blob:none --sparse
+          cd .github
+          git sparse-checkout set copilot-prompts
+          git checkout main copilot-prompts/README_UPDATE.md
+          cd ..
+          
           if [ -f ".github/copilot-prompts/README_UPDATE.md" ]; then
             echo "prompt_exists=true" >> $GITHUB_OUTPUT
+            echo "Prompt file successfully fetched from PepperDash/.github"
           else
             echo "prompt_exists=false" >> $GITHUB_OUTPUT
-            echo "Warning: .github/copilot-prompts/README_UPDATE.md not found"
+            echo "Error: Failed to fetch README_UPDATE.md from PepperDash/.github"
+            exit 1
           fi
 
       - name: Install Copilot CLI extension
-        if: steps.check_prompt.outputs.prompt_exists == 'true'
+        if: steps.fetch_prompt.outputs.prompt_exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Install GitHub Copilot CLI extension
           # Note: This requires GitHub Copilot access
@@ -89,8 +96,10 @@ jobs:
         continue-on-error: true
 
       - name: Attempt README generation with Copilot
-        if: steps.check_prompt.outputs.prompt_exists == 'true'
+        if: steps.fetch_prompt.outputs.prompt_exists == 'true'
         id: generate_readme
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Read the prompt file
           if [ ! -f ".github/copilot-prompts/README_UPDATE.md" ]; then
@@ -175,7 +184,7 @@ jobs:
           echo "mode=manual" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
-        if: steps.check_prompt.outputs.prompt_exists == 'true'
+        if: steps.fetch_prompt.outputs.prompt_exists == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
