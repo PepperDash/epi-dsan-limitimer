@@ -50,187 +50,44 @@ jobs:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install GitHub CLI
-        run: |
-          type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          sudo apt update
-          sudo apt install gh -y
-
       - name: Fetch prompt from PepperDash/.github
         id: fetch_prompt
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p .github/copilot-prompts
-          
           # Download the prompt file directly from PepperDash/.github
           curl -H "Authorization: token $GH_TOKEN" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/PepperDash/.github/contents/copilot-prompts/README_UPDATE.md?ref=main" \
-            -o .github/copilot-prompts/README_UPDATE.md
+            -o prompt.md
           
-          if [ -f ".github/copilot-prompts/README_UPDATE.md" ] && [ -s ".github/copilot-prompts/README_UPDATE.md" ]; then
+          if [ -f "prompt.md" ] && [ -s "prompt.md" ]; then
             echo "prompt_exists=true" >> $GITHUB_OUTPUT
             echo "Prompt file successfully fetched from PepperDash/.github"
+            # Store the prompt content for later use
+            echo "PROMPT_CONTENT<<EOF" >> $GITHUB_ENV
+            cat prompt.md >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
           else
             echo "prompt_exists=false" >> $GITHUB_OUTPUT
             echo "Error: Failed to fetch README_UPDATE.md from PepperDash/.github"
             exit 1
           fi
 
-      - name: Install Copilot CLI extension
+      - name: Create issue and assign to Copilot
         if: steps.fetch_prompt.outputs.prompt_exists == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Install GitHub Copilot CLI extension
-          # Note: This requires GitHub Copilot access
-          gh extension install github/gh-copilot || echo "Copilot extension installation failed or already installed"
-        continue-on-error: true
-
-      - name: Attempt README generation with Copilot
-        if: steps.fetch_prompt.outputs.prompt_exists == 'true'
-        id: generate_readme
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Read the prompt file
-          if [ ! -f ".github/copilot-prompts/README_UPDATE.md" ]; then
-            echo "Error: Prompt file not found"
-            exit 1
-          fi
-          
-          PROMPT_CONTENT=$(cat .github/copilot-prompts/README_UPDATE.md)
-          
-          # Check if Copilot CLI is available
-          if ! gh copilot --version 2>/dev/null; then
-            echo "::warning::GitHub Copilot CLI is not available."
-            echo "::notice::To use Copilot CLI, ensure you have:"
-            echo "::notice::1. Active GitHub Copilot license"
-            echo "::notice::2. Proper authentication configured"
-            echo "::notice::For now, creating a placeholder commit with the prompt for manual review."
-            
-            # Create directory for output
-            mkdir -p .github/copilot-output
-            
-            # Create a marker file indicating manual review is needed
-            cat > .github/copilot-output/README_UPDATE_NEEDED.md << 'EOF'
-          # README Update Required
-          
-          This file indicates that the AI-assisted README update workflow ran but needs manual completion.
-          
-          ## Instructions
-          1. Review the prompt in: `.github/copilot-prompts/README_UPDATE.md`
-          2. Use GitHub Copilot (in your IDE or via CLI) to generate README updates
-          3. Apply the updates to README.md
-          4. Delete this file once complete
-          
-          ## Prompt Content
-          
-          EOF
-            
-            # Append the prompt content (safely)
-            echo '```markdown' >> .github/copilot-output/README_UPDATE_NEEDED.md
-            cat .github/copilot-prompts/README_UPDATE.md >> .github/copilot-output/README_UPDATE_NEEDED.md
-            echo '```' >> .github/copilot-output/README_UPDATE_NEEDED.md
-            
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "mode=manual" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Copilot CLI is available - attempt to use it
-          echo "GitHub Copilot CLI detected, attempting to generate README content..."
-          
-          # Note: As of now, gh copilot CLI is primarily designed for command suggestions
-          # and doesn't have a direct API for generating documentation content.
-          # The actual implementation would depend on the specific Copilot CLI capabilities
-          # available at runtime. For now, we'll create a helpful message and fall back.
-          
-          echo "::warning::Copilot CLI is available but automated README generation"
-          echo "::warning::requires manual intervention or additional tooling."
-          echo "::notice::Consider using GitHub Copilot in your IDE to apply the prompt."
-          
-          mkdir -p .github/copilot-output
-          
-          cat > .github/copilot-output/README_UPDATE_NEEDED.md << 'EOF'
-          # README Update Required (Copilot CLI Available)
-          
-          The Copilot CLI is installed but automated README generation requires manual completion.
-          
-          ## Next Steps
-          1. Review prompt: `.github/copilot-prompts/README_UPDATE.md`
-          2. Use GitHub Copilot in your IDE or with proper authentication locally
-          3. Update README.md based on the prompt
-          4. Delete this file once complete
-          
-          ## Prompt Content
-          
-          EOF
-          
-          # Append the prompt content (safely)
-          echo '```markdown' >> .github/copilot-output/README_UPDATE_NEEDED.md
-          cat .github/copilot-prompts/README_UPDATE.md >> .github/copilot-output/README_UPDATE_NEEDED.md
-          echo '```' >> .github/copilot-output/README_UPDATE_NEEDED.md
-          
-          echo "has_changes=true" >> $GITHUB_OUTPUT
-          echo "mode=manual" >> $GITHUB_OUTPUT
-
-      - name: Create Pull Request
-        if: steps.fetch_prompt.outputs.prompt_exists == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: Update README using AI assistance"
-          title: "🤖 AI-Assisted README Update"
-          body: |
-            ## AI-Assisted README Update
-            
-            This PR was created by the EssentialsPlugins-UpdateReadme-AI-Caller workflow.
-            
-            ### Status
-            - **Generation Mode**: ${{ steps.generate_readme.outputs.mode || 'unknown' }}
-            - **Target Branch**: ${{ github.ref_name }}
-            - **Prompt Location**: `.github/copilot-prompts/README_UPDATE.md`
-            
-            ### Review Instructions
-            
-            ${{ steps.generate_readme.outputs.mode == 'automated' && '✅ README updates were generated automatically using GitHub Copilot CLI. Please review all changes carefully before merging.' || '⚠️ Manual completion required. Check `.github/copilot-output/README_UPDATE_NEEDED.md` for instructions.' }}
-            
-            ### Important Notes
-            - **Review Required**: All AI-generated content must be reviewed by a human
-            - **Prompt Used**: See `.github/copilot-prompts/README_UPDATE.md` for the original prompt
-            - **Configuration**: See workflow file for Copilot CLI setup requirements
-            
-            ### GitHub Copilot Requirements
-            For automated README generation to work:
-            1. Repository must have GitHub Copilot access enabled
-            2. The workflow runner must authenticate with Copilot CLI
-            3. Consider using a dedicated secret (e.g., `COPILOT_TOKEN`) if `GITHUB_TOKEN` permissions are insufficient
-            
-            ### Troubleshooting
-            If this PR only contains a placeholder file:
-            - Copilot CLI may not be properly authenticated in the workflow
-            - Follow the instructions in `.github/copilot-output/README_UPDATE_NEEDED.md`
-            - Consider using GitHub Copilot in your IDE to apply the prompt manually
-            - The prompt file provides all the information needed for manual completion
-            
-            ---
-            *Generated by EssentialsPlugins-UpdateReadme-AI-Caller workflow*
-            *Triggered by push to `${{ github.ref_name }}`*
-          branch: robot-docs-ai
-          base: ${{ github.ref_name }}
-          delete-branch: true
-          labels: |
-            documentation
-            automated
-            ai-generated
+          # Create an issue with the prompt using GitHub API
+          curl -X POST \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues" \
+            -d '{
+              "title": "🤖 AI-Assisted README Update",
+              "body": "'"$(cat prompt.md | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')"'",
+              "labels": ["documentation", "automated", "ai-generated"],
+              "assignees": ["copilot"]
+            }'
 
