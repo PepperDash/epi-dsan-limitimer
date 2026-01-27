@@ -70,13 +70,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p .github/copilot-prompts
-          gh repo clone PepperDash/.github -- --depth 1 --filter=blob:none --sparse
-          cd .github
-          git sparse-checkout set copilot-prompts
-          git checkout main copilot-prompts/README_UPDATE.md
-          cd ..
           
-          if [ -f ".github/copilot-prompts/README_UPDATE.md" ]; then
+          # Download the prompt file directly from PepperDash/.github
+          curl -H "Authorization: token $GH_TOKEN" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/PepperDash/.github/contents/copilot-prompts/README_UPDATE.md?ref=main" \
+            -o .github/copilot-prompts/README_UPDATE.md
+          
+          if [ -f ".github/copilot-prompts/README_UPDATE.md" ] && [ -s ".github/copilot-prompts/README_UPDATE.md" ]; then
             echo "prompt_exists=true" >> $GITHUB_OUTPUT
             echo "Prompt file successfully fetched from PepperDash/.github"
           else
