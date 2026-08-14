@@ -471,7 +471,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			},
 			new JoinMetadata
 			{
-				Description = "Remaining Time String (MM:SS format)",
+				Description = "Remaining Time String Stop at Zero (MM:SS format)",
 				JoinCapabilities = eJoinCapabilities.ToSIMPL,
 				JoinType = eJoinType.Serial
 			});
