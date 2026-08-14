@@ -10,7 +10,7 @@
 #
 # Requirements:
 # - GitHub Copilot access for the repository
-# - GITHUB_TOKEN with contents:write and pull-requests:write permissions
+# - GITHUB_TOKEN with contents:write, issues:write, and pull-requests:write permissions
 # - Optional: Custom token (COPILOT_TOKEN) if GITHUB_TOKEN is insufficient
 #
 # Prompt File Example (.github/copilot-prompts/README_UPDATE.md):
@@ -37,6 +37,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
 
 jobs:
@@ -89,4 +90,3 @@ jobs:
               labels: ['documentation', 'automated', 'ai-generated'],
               assignees: ['copilot']
             });
-
