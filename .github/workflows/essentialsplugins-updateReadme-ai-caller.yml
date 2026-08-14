@@ -1,0 +1,90 @@
+# GitHub Actions Workflow Template: AI-Assisted README Update
+# 
+# This workflow template fetches a markdown prompt and creates an issue containing it,
+# which can then be used by a separate automation/agent to generate or update README.md.
+#
+# Usage:
+# 1. Copy this workflow to your repository's .github/workflows/ directory
+# 2. Push changes to any branch (except robot-docs and robot-docs-ai)
+# 3. The workflow will create an issue with the fetched prompt content
+#
+# Requirements:
+# - GitHub Copilot access for the repository
+# - GITHUB_TOKEN with contents:write, issues:write, and pull-requests:write permissions
+# - Optional: Custom token (COPILOT_TOKEN) if GITHUB_TOKEN is insufficient
+#
+# Prompt File Example (.github/copilot-prompts/README_UPDATE.md):
+# ---
+# # Update README.md with the following information:
+# 
+# - Add a comprehensive overview of the project
+# - Include installation instructions
+# - Document all public APIs and their usage
+# - Add examples for common use cases
+# - Include troubleshooting section
+# ---
+#
+# For more information about GitHub Copilot CLI:
+# https://docs.github.com/en/copilot/github-copilot-in-the-cli
+
+name: Generate README with AI
+
+on:
+  push:
+    branches-ignore:
+      - 'robot-docs'
+      - 'robot-docs-ai'
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  update-readme-with-ai:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fetch prompt from PepperDash/.github
+        id: fetch_prompt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Download the prompt file directly from PepperDash/.github
+          curl -H "Authorization: token $GH_TOKEN" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/PepperDash/.github/contents/copilot-prompts/README_UPDATE.md?ref=main" \
+            -o prompt.md
+          
+          if [ -f "prompt.md" ] && [ -s "prompt.md" ]; then
+            echo "prompt_exists=true" >> $GITHUB_OUTPUT
+            echo "Prompt file successfully fetched from PepperDash/.github"
+            # Store the prompt content for later use
+            echo "PROMPT_CONTENT<<EOF" >> $GITHUB_ENV
+            cat prompt.md >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "prompt_exists=false" >> $GITHUB_OUTPUT
+            echo "Error: Failed to fetch README_UPDATE.md from PepperDash/.github"
+            exit 1
+          fi
+
+      - name: Create issue and assign to Copilot
+        if: steps.fetch_prompt.outputs.prompt_exists == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const promptContent = fs.readFileSync('prompt.md', 'utf8');
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🤖 AI-Assisted README Update',
+              body: promptContent
+            });
