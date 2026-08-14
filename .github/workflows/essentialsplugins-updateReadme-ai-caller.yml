@@ -1,13 +1,12 @@
 # GitHub Actions Workflow Template: AI-Assisted README Update
 # 
-# This workflow template uses GitHub Copilot CLI to automatically generate or update
-# README documentation based on a markdown prompt file in the calling repository.
+# This workflow template fetches a markdown prompt and creates an issue containing it,
+# which can then be used by a separate automation/agent to generate or update README.md.
 #
 # Usage:
 # 1. Copy this workflow to your repository's .github/workflows/ directory
-# 2. Create a prompt file at: .github/copilot-prompts/README_UPDATE.md
-# 3. Push changes to any branch (except robot-docs and robot-docs-ai)
-# 4. The workflow will create a PR with AI-generated README updates
+# 2. Push changes to any branch (except robot-docs and robot-docs-ai)
+# 3. The workflow will create an issue with the fetched prompt content
 #
 # Requirements:
 # - GitHub Copilot access for the repository
