@@ -121,7 +121,7 @@ The configuration properties must accurately reflect the communication parameter
 |---------|---------|-------|
 | Communication | RS-232, TCP | Primary: RS-232 at 9600 baud |
 | LED Indicators | 7 total | Program 1-3, Session, Beep, Blink, Seconds |
-| Time Display | 3 zones | Total, Sum-Up, Remaining (MM:SS format) |
+| Time Display | 3 zones | Total, Sum-Up, Remaining (MM:SS format; includes stop-at-zero variant) |
 | Programs | 4 | Program 1-3 + Session mode |
 | Controls | 6 | Start/Stop, Repeat, Clear, +/-, Seconds |
 | Feedback Status | Online, Communication Health | Real-time monitoring |
