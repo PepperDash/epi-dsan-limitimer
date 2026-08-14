@@ -8,7 +8,7 @@ using PepperDash.Essentials.Core.Bridges;
 using PepperDash.Essentials.Core.DeviceTypeInterfaces;
 using PepperDash.Essentials.Core.Queues;
 
-namespace PepperDash.Essentials.Plugins.Limitimer
+namespace PepperDash.Essentials.Plugins
 {
 	public class LimitimerDevice : EssentialsBridgeableDevice, IOnline, ICommunicationMonitor
     {
@@ -327,7 +327,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 			#endregion
 		}
 
-        public override void Initialize()
+        protected override void Initialize()
         {
             base.Initialize();
 

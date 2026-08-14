@@ -10,7 +10,7 @@ The configuration properties must accurately reflect the communication parameter
 <!-- START Minimum Essentials Framework Versions -->
 ### Minimum Essentials Framework Versions
 
-- 2.8.0
+- 3.0.0-dev-v3-routing.63
 <!-- END Minimum Essentials Framework Versions -->
 
 <!-- START Supported Types -->
