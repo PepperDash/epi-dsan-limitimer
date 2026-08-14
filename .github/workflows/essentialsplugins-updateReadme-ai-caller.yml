@@ -86,7 +86,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: '🤖 AI-Assisted README Update',
-              body: promptContent,
-              labels: ['documentation', 'automated', 'ai-generated'],
-              assignees: ['copilot']
+              body: promptContent
             });
