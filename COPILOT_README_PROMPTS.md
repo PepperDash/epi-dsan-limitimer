@@ -1236,8 +1236,8 @@ The configuration properties must accurately reflect the communication parameter
 - ❌ Sections out of order
 - ❌ HTML markers mismatched or orphaned
 - ❌ Join numbers do not match JoinMap.cs source
-- ❌ Device types include 385/385C (commented out in NvxBaseDeviceFactory.cs)
-- ❌ Framework version is not 2.24.4
+- ❌ Device types listed in README do not match the device types supported in source (Factory/Device code)
+- ❌ Framework version in README does not match the PepperDashEssentials PackageReference version in the .csproj
 - ❌ Config examples invented rather than extracted from source
 - ❌ Base Classes not organized into subsections with descriptions
 - Test time adjustment (plus/minus) for both total and sum time
