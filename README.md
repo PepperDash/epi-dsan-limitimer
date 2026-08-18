@@ -16,101 +16,29 @@ The configuration properties must accurately reflect the communication parameter
 <!-- START Supported Types -->
 ### Supported Types
 
-**Devices:**
-- `limitimer` - DSAN Limitimer timer control device (RS-232 and TCP/Network)
+- limitimer
 <!-- END Supported Types -->
 
 ---
 
 <!-- START Config Example -->
-### Config Examples
-
-#### RS-232 Configuration (Serial Port)
+### Config Example
 
 ```json
 {
-  "key": "limitimer-1",
-  "name": "MainTimer",
-  "type": "limitimer",
-  "group": "timers",
-  "uid": 101,
-  "properties": {
-    "control": {
-      "comParams": {
-        "dataBits": 8,
-        "softwareHandshake": "None",
-        "baudRate": 9600,
-        "parity": "None",
-        "stopBits": 1,
-        "hardwareHandshake": "None",
-        "protocol": "RS232"
-      },
-      "method": "com",
-      "controlPortNumber": 1
-    },
-    "pollTimeMs": 5000,
-    "warningTimeoutMs": 45000,
-    "errorTimeoutMs": 90000
-  }
+    "key": "GeneratedKey",
+    "uid": 1,
+    "name": "GeneratedName",
+    "type": "limitimer",
+    "group": "Group",
+    "properties": {
+        "control": "SampleValue",
+        "pollTimeMs": 0,
+        "warningTimeoutMs": 0,
+        "errorTimeoutMs": 0
+    }
 }
 ```
-**Note:** Standard RS-232 configuration for Limitimer devices. Set `controlPortNumber` to the COM port on your control processor (typically 1-3 for CP4). Serial communication at 9600 baud with standard RS-232 parameters (8 data bits, no parity, 1 stop bit).
-
-#### TCP Configuration (Network)
-
-```json
-{
-  "key": "limitimer-network",
-  "name": "NetworkTimer",
-  "type": "limitimer",
-  "group": "timers",
-  "uid": 102,
-  "properties": {
-    "control": {
-      "tcpSshProperties": {
-        "address": "192.168.1.50",
-        "port": 5000
-      }
-    },
-    "pollTimeMs": 5000,
-    "warningTimeoutMs": 45000,
-    "errorTimeoutMs": 90000
-  }
-}
-```
-**Note:** TCP/Network configuration for Limitimer devices with ethernet connectivity. Requires static IP address and network accessibility. Port 5000 is the standard Limitimer TCP port.
-
-#### Multi-Zone Configuration
-
-```json
-{
-  "key": "limitimer-zone-1",
-  "name": "Zone-1-Timer",
-  "type": "limitimer",
-  "group": "timers",
-  "uid": 110,
-  "properties": {
-    "control": {
-      "comParams": {
-        "dataBits": 8,
-        "softwareHandshake": "None",
-        "baudRate": 9600,
-        "parity": "None",
-        "stopBits": 1,
-        "hardwareHandshake": "None",
-        "protocol": "RS232"
-      },
-      "method": "com",
-      "controlPortNumber": 1
-    },
-    "pollTimeMs": 3000,
-    "warningTimeoutMs": 30000,
-    "errorTimeoutMs": 60000
-  }
-}
-```
-**Note:** Multi-zone setup with faster polling (3000ms). Appropriate for high-traffic environments with multiple timers. Reduces timeouts for faster error detection.
-
 <!-- END Config Example -->
 
 ---
@@ -213,35 +141,35 @@ The configuration properties must accurately reflect the communication parameter
 
 #### Digitals
 
-| Join | Direction | Description |
-|------|-----------|-------------|
+| Join | Type (RW) | Description |
+| --- | --- | --- |
 | 1 | R | Is Online |
-| 11 | R/W | Program 1 Press / Program 1 LED On Feedback |
+| 11 | R | Program 1 Press / Program 1 LED On Feedback |
 | 12 | R | Program 1 LED Dim Feedback |
-| 13 | R/W | Program 2 Press / Program 2 LED On Feedback |
+| 13 | R | Program 2 Press / Program 2 LED On Feedback |
 | 14 | R | Program 2 LED Dim Feedback |
-| 15 | R/W | Program 3 Press / Program 3 LED On Feedback |
+| 15 | R | Program 3 Press / Program 3 LED On Feedback |
 | 16 | R | Program 3 LED Dim Feedback |
-| 17 | R/W | Session Press / Session LED On Feedback |
+| 17 | R | Session Press / Session LED On Feedback |
 | 18 | R | Session LED Dim Feedback |
-| 21 | R/W | Beep Press / Beep LED On Feedback |
-| 22 | R/W | Blink Press / Blink LED On Feedback |
-| 23 | R/W | Seconds Mode Press / Seconds Mode Indicator Feedback |
+| 21 | R | Beep Press / Beep LED On Feedback |
+| 22 | R | Blink Press / Blink LED On Feedback |
+| 23 | R | Seconds Mode Press / Seconds Mode Indicator Feedback |
 | 24 | R | Green LED On Feedback |
 | 25 | R | Red LED On Feedback |
 | 26 | R | Yellow LED On Feedback |
-| 27 | W | Start/Stop Press |
-| 28 | W | Repeat Press |
-| 29 | W | Clear Press |
-| 30 | W | Total Time Plus Press |
-| 31 | W | Total Time Minus Press |
-| 32 | W | Sum Time Plus Press |
-| 33 | W | Sum Time Minus Press |
+| 27 | R | Start/Stop Press |
+| 28 | R | Repeat Press |
+| 29 | R | Clear Press |
+| 30 | R | Total Time Plus Press |
+| 31 | R | Total Time Minus Press |
+| 32 | R | Sum Time Plus Press |
+| 33 | R | Sum Time Minus Press |
 
 #### Analogs
 
-| Join | Direction | Description |
-|------|-----------|-------------|
+| Join | Type (RW) | Description |
+| --- | --- | --- |
 | 1 | R | Socket Status (0=IsOk, 1=CompromisedCommunication, 2=CommunicationError) |
 | 2 | R | Program 1 LED State (0=off, 1=on, 2=dim) |
 | 3 | R | Program 2 LED State (0=off, 1=on, 2=dim) |
@@ -250,12 +178,13 @@ The configuration properties must accurately reflect the communication parameter
 
 #### Serials
 
-| Join | Direction | Description |
-|------|-----------|-------------|
+| Join | Type (RW) | Description |
+| --- | --- | --- |
 | 1 | R | Device Name |
 | 2 | R | Total Time String (MM:SS format) |
 | 3 | R | Sum-Up Time String (MM:SS format) |
 | 4 | R | Remaining Time String (MM:SS format) |
+| 5 | R | Remaining Time String Stop at Zero (MM:SS format) |
 <!-- END Join Maps -->
 
 ---
@@ -309,9 +238,8 @@ The configuration properties must accurately reflect the communication parameter
 <!-- START Interfaces Implemented -->
 ### Interfaces Implemented
 
-- `IOnline` - Provides online/offline status feedback
-- `ICommunicationMonitor` - Enables communication status monitoring and diagnostics
-- `IBridgeAdvanced` - Supports advanced bridge functionality for API linking
+- IOnline
+- ICommunicationMonitor
 <!-- END Interfaces Implemented -->
 
 ---
@@ -319,16 +247,9 @@ The configuration properties must accurately reflect the communication parameter
 <!-- START Base Classes -->
 ### Base Classes
 
-**Device Base Classes:**
-- `EssentialsBridgeableDevice` - Bridgeable Essentials device implementation
-
-**Support Classes:**
-- `JoinMapBaseAdvanced` - Advanced join mapping framework (base for LimitimerBridgeJoinMap)
-- `MessengerBase` - Message handling and communication base class (base for LimitimerMessenger)
-
-**Communication & Monitoring:**
-- `IBasicCommunication` - Basic communication interface for device control
-- `GenericCommunicationMonitor` - Communication monitoring and status tracking
+- MessengerBase
+- JoinMapBaseAdvanced
+- EssentialsBridgeableDevice
 <!-- END Base Classes -->
 
 ---
@@ -374,46 +295,47 @@ The Dsan Limitimer plugin follows the PepperDash Essentials architecture pattern
 <!-- START Public Methods -->
 ### Public Methods
 
-**Program Control Methods:**
-- `Program1()` - Trigger Program 1
-- `Program2()` - Trigger Program 2
-- `Program3()` - Trigger Program 3
-- `Session4()` - Trigger Session function
-
-**LED & Indicator Methods:**
-- `Beep()` - Trigger beep with LED feedback
-- `Beep1()` - Alternate beep variant
-- `Blink()` - Trigger blink function
-
-**Timer Control Methods:**
-- `StartStop()` - Start or stop the timer
-- `Repeat()` - Repeat the current timer program
-- `Clear()` - Clear the timer
-
-**Time Adjustment Methods:**
-- `TotalTimePlus()` - Increment total time
-- `TotalTimeMinus()` - Decrement total time
-- `SumTimePlus()` - Increment sum-up time
-- `SumTimeMinus()` - Decrement sum-up time
-- `SetSeconds()` - Set timer to seconds mode
-
-**Communication Methods:**
-- `ProcessFeedbackMessage(string message)` - Process device feedback messages
-- `SendText(string text)` - Send text command to device
-- `LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)` - Link device to Essentials API
+- public void ProcessFeedbackMessage(string message)
+- public void SendText(string text)
+- public void Program1()
+- public void Program2()
+- public void Program3()
+- public void Session4()
+- public void Beep()
+- public void Beep1()
+- public void Blink()
+- public void StartStop()
+- public void Repeat()
+- public void Clear()
+- public void TotalTimePlus()
+- public void TotalTimeMinus()
+- public void SumTimePlus()
+- public void SumTimeMinus()
+- public void SetSeconds()
+- public void Factory_Source_Sets_MinimumEssentialsFrameworkVersion()
+- public void Factory_Source_Sets_TypeNames()
+- public void Factory_Source_Contains_TypeName(string factoryClassName, string typeName)
+- public void Assembly_Loads_Successfully()
+- public void Assembly_Name_Matches_Expected()
+- public void Factory_Count_Matches_Expected()
+- public void Factory_Exists_ByName(string factoryClassName)
+- public void All_Factories_Have_Parameterless_Constructor()
+- public void Config_Class_Exists()
+- public void Config_Has_Parameterless_Constructor()
+- public void Config_Property_Has_JsonPropertyAttribute(string propertyName, string jsonName)
 <!-- END Public Methods -->
 ---
 
 <!-- START Bool Feedbacks -->
 ### Bool Feedbacks
 
-- `IsOnline` - Device online status
-- `BeepLedStateFeedback` - Beep LED state
-- `BlinkLedStateFeedback` - Blink LED state
-- `GreenLedStateFeedback` - Green LED state
-- `RedLedStateFeedback` - Red LED state
-- `YellowLedStateFeedback` - Yellow LED state
-- `SecondsModeIndicatorStateFeedback` - Seconds mode indicator state
+- IsOnline
+- BeepLedStateFeedback
+- BlinkLedStateFeedback
+- GreenLedStateFeedback
+- RedLedStateFeedback
+- YellowLedStateFeedback
+- SecondsModeIndicatorStateFeedback
 <!-- END Bool Feedbacks -->
 
 ---
@@ -421,11 +343,11 @@ The Dsan Limitimer plugin follows the PepperDash Essentials architecture pattern
 <!-- START Int Feedbacks -->
 ### Int Feedbacks
 
-- `StatusFeedback` - Communication socket status (0=Ok, 1=Warning, 2=Error)
-- `Program1LedStateFeedback` - Program 1 LED state (0=off, 1=on, 2=dim)
-- `Program2LedStateFeedback` - Program 2 LED state (0=off, 1=on, 2=dim)
-- `Program3LedStateFeedback` - Program 3 LED state (0=off, 1=on, 2=dim)
-- `SessionLedStateFeedback` - Session LED state (0=off, 1=on, 2=dim)
+- StatusFeedback
+- Program1LedStateFeedback
+- Program2LedStateFeedback
+- Program3LedStateFeedback
+- SessionLedStateFeedback
 <!-- END Int Feedbacks -->
 
 ---
@@ -433,9 +355,10 @@ The Dsan Limitimer plugin follows the PepperDash Essentials architecture pattern
 <!-- START String Feedbacks -->
 ### String Feedbacks
 
-- `TotalTimeFeedback` - Total elapsed time in MM:SS format
-- `SumUpTimeFeedback` - Sum-up time in MM:SS format
-- `RemainingTimeFeedback` - Remaining time in MM:SS format
+- TotalTimeFeedback
+- SumUpTimeFeedback
+- RemainingTimeFeedback
+- RemainingTimeSZFeedback
 <!-- END String Feedbacks -->
 
 ---
