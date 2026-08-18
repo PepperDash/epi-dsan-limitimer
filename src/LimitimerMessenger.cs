@@ -5,7 +5,7 @@ using PepperDash.Essentials.AppServer.Messengers;
 using PepperDash.Core;
 using PepperDash.Core.Logging;
 
-namespace PepperDash.Essentials.Plugins.Limitimer
+namespace PepperDash.Essentials.Plugins
 {
     public class LimitimerMessenger : MessengerBase
     {

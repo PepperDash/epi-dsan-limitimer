@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugins.Limitimer
+namespace PepperDash.Essentials.Plugins
 {
 	public class LimitimerPropertiesConfig
 	{

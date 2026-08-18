@@ -4,7 +4,7 @@ using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Config;
 
-namespace PepperDash.Essentials.Plugins.Limitimer
+namespace PepperDash.Essentials.Plugins
 {
 	
     public class LimitimerFactory : EssentialsPluginDeviceFactory<LimitimerDevice>
@@ -12,7 +12,7 @@ namespace PepperDash.Essentials.Plugins.Limitimer
 
         public LimitimerFactory()
         {
-			MinimumEssentialsFrameworkVersion = "2.8.0";
+			MinimumEssentialsFrameworkVersion = "3.0.0-dev-v3-routing.63";
 
             TypeNames = new List<string>() { "limitimer" };
         }

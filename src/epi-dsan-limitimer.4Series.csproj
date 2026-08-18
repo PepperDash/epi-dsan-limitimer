@@ -3,10 +3,10 @@
 		<ProjectType>ProgramLibrary</ProjectType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<RootNamespace>PepperDash.Essentials.Plugin</RootNamespace>
+		<TargetFramework>net8</TargetFramework>
+		<RootNamespace>PepperDash.Essentials.Plugins</RootNamespace>
 		<Deterministic>false</Deterministic>
-		<AssemblyTitle>PepperDash.Essentials.Plugin.Dsan.Limitimer</AssemblyTitle>
+		<AssemblyTitle>PepperDash.Essentials.Plugins.Dsan.Limitimer</AssemblyTitle>
 		<Company>PepperDash Technology</Company>
 		<Description>Plugin for control of a Dsan Limitimer device</Description>
 		<Copyright>Copyright 2025</Copyright>
@@ -15,13 +15,10 @@
 		<InformationalVersion>$(Version)</InformationalVersion>
 		<OutputPath>bin\$(Configuration)\</OutputPath>
 		<Authors>PepperDash Technology</Authors>
-		<PackageId>Pepperdash.Essentials.Plugins.Dsan.Limitimer</PackageId>
+		<AssemblyName>PepperDash.Essentials.Plugins.Dsan.Limitimer</AssemblyName>
+		<PackageId>PepperDash.Essentials.Plugins.Dsan.Limitimer</PackageId>
 		<PackageProjectUrl>https://github.com/PepperDash/epi-dsan-limitimer.git</PackageProjectUrl>
 		<PackageTags>crestron 4series essentials plugin template</PackageTags>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>$(DefineConstants);SERIES4</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -30,24 +27,12 @@
 		<None Remove="Properties\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-    <None Remove="epi-make-model.projectinfo" />
-  </ItemGroup>
-
   <ItemGroup>
- 	<PackageReference Include="PepperDashEssentials" Version="2.8.0" >
+ 	<PackageReference Include="PepperDashEssentials" Version="3.0.0-dev-v3-routing.63" >
   		<ExcludeAssets>runtime</ExcludeAssets>
  	</PackageReference>
- 	<PackageReference Include="PepperDash.Essentials.MobileControl" Version="2.8.0" >
+ 	<PackageReference Include="PepperDash.Essentials.MobileControl" Version="3.0.0-dev-v3-routing.63" >
   		<ExcludeAssets>runtime</ExcludeAssets>
  	</PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="../output\epi-make-model.4Series.1.0.0-local.cplz" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="../output\epi-make-model.4Series.1.0.0-local.cplz" />
   </ItemGroup>
 </Project>
